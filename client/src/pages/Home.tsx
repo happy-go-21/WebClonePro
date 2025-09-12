@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import MainHeader from "@/components/MainHeader";
 import CategoryCircles from "@/components/CategoryCircles";
 import ProvinceCircles from "@/components/ProvinceCircles";
@@ -11,6 +12,22 @@ export default function Home() {
     queryKey: ["/api/latest-ad"],
   });
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [, setLocation] = useLocation();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const params = new URLSearchParams();
+    if (searchQuery) params.set('search', searchQuery);
+    if (selectedCategory) params.set('category', selectedCategory);
+    if (selectedLocation) params.set('location', selectedLocation);
+    
+    setLocation(`/products?${params.toString()}`);
+  };
+
   return (
     <>
       <MainHeader />
@@ -21,78 +38,92 @@ export default function Home() {
           منوی اصلی
         </h2>
         
-        <div className="nav-grid">
+        <div className="flex gap-4 justify-center">
           <Link 
             href="/" 
-            className="glassmorphism p-3 rounded-lg text-center text-white font-bold hover:bg-white hover:text-primary transition-all duration-300 golden-border text-xs flex items-center justify-center no-underline"
+            className="glassmorphism p-4 rounded-lg text-center text-white font-bold hover:bg-white hover:text-primary transition-all duration-300 golden-border text-sm flex items-center justify-center no-underline min-w-32"
             data-testid="link-home"
           >
             🏠 خانه
           </Link>
           <Link 
-            href="/post-ad" 
-            className="glassmorphism p-3 rounded-lg text-center text-white font-bold hover:bg-white hover:text-primary transition-all duration-300 golden-border text-xs flex items-center justify-center no-underline"
-            data-testid="link-post-ad"
-          >
-            📝 ثبت آگهی
-          </Link>
-          <Link 
             href="/products" 
-            className="glassmorphism p-3 rounded-lg text-center text-white font-bold hover:bg-white hover:text-primary transition-all duration-300 golden-border text-xs flex items-center justify-center no-underline"
+            className="glassmorphism p-4 rounded-lg text-center text-white font-bold hover:bg-white hover:text-primary transition-all duration-300 golden-border text-sm flex items-center justify-center no-underline min-w-32"
             data-testid="link-products"
           >
             🛍️ محصولات
           </Link>
-          <Link 
-            href="/products?category=املاک" 
-            className="glassmorphism p-3 rounded-lg text-center text-white font-bold hover:bg-white hover:text-primary transition-all duration-300 golden-border text-xs flex items-center justify-center no-underline"
-            data-testid="link-realestate"
-          >
-            🏘️ املاک
-          </Link>
-          <Link 
-            href="/products?category=خودرو" 
-            className="glassmorphism p-3 rounded-lg text-center text-white font-bold hover:bg-white hover:text-primary transition-all duration-300 golden-border text-xs flex items-center justify-center no-underline"
-            data-testid="link-vehicles"
-          >
-            🚗 خودرو
-          </Link>
-          <Link 
-            href="/products?category=الکترونیکی" 
-            className="glassmorphism p-3 rounded-lg text-center text-white font-bold hover:bg-white hover:text-primary transition-all duration-300 golden-border text-xs flex items-center justify-center no-underline"
-            data-testid="link-electronics"
-          >
-            📱 الکترونیکی
-          </Link>
-          <Link 
-            href="/products?category=لباس مردانه" 
-            className="glassmorphism p-3 rounded-lg text-center text-white font-bold hover:bg-white hover:text-primary transition-all duration-300 golden-border text-xs flex items-center justify-center no-underline"
-            data-testid="link-clothing"
-          >
-            👕 پوشاک
-          </Link>
-          <Link 
-            href="/products?category=لوازم خانگی" 
-            className="glassmorphism p-3 rounded-lg text-center text-white font-bold hover:bg-white hover:text-primary transition-all duration-300 golden-border text-xs flex items-center justify-center no-underline"
-            data-testid="link-home-appliances"
-          >
-            🏠 لوازم خانگی
-          </Link>
-          <Link 
-            href="/products?category=کتاب و آموزش" 
-            className="glassmorphism p-3 rounded-lg text-center text-white font-bold hover:bg-white hover:text-primary transition-all duration-300 golden-border text-xs flex items-center justify-center no-underline"
-            data-testid="link-books"
-          >
-            📚 کتاب
-          </Link>
-          <Link 
-            href="/products?category=لوازم کودک" 
-            className="glassmorphism p-3 rounded-lg text-center text-white font-bold hover:bg-white hover:text-primary transition-all duration-300 golden-border text-xs flex items-center justify-center no-underline"
-            data-testid="link-kids"
-          >
-            👶 کودک
-          </Link>
         </div>
+      </div>
+
+      {/* جستجو */}
+      <div className="glassmorphism rounded-xl p-6 mb-8 shadow-2xl">
+        <h2 className="text-xl font-bold text-white mb-4 border-b border-white/30 pb-2">
+          جستجو
+        </h2>
+        
+        <form onSubmit={handleSearch} className="flex flex-wrap gap-4 items-center">
+          <input 
+            type="text" 
+            placeholder="جستجوی محصولات..."
+            className="flex-1 min-w-64 px-4 py-3 rounded-lg glassmorphism text-white placeholder-white/70 border-white/30 focus:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/20"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            data-testid="input-search"
+          />
+          
+          <select 
+            className="px-4 py-3 rounded-lg glassmorphism text-white border-white/30 focus:border-white/50 focus:outline-none min-w-40"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            data-testid="select-category"
+          >
+            <option value="">همه دسته‌ها</option>
+            <option value="املاک">املاک</option>
+            <option value="خودرو">خودرو</option>
+            <option value="الکترونیکی">الکترونیکی</option>
+            <option value="لوازم خانگی">لوازم خانگی</option>
+            <option value="لباس مردانه">لباس مردانه</option>
+            <option value="لباس زنانه">لباس زنانه</option>
+            <option value="لباس کودکان">لباس کودکان</option>
+            <option value="طلا و جواهرات">طلا و جواهرات</option>
+            <option value="کتاب و آموزش">کتاب و آموزش</option>
+            <option value="لوازم کودک">لوازم کودک</option>
+            <option value="استخدام">استخدام</option>
+            <option value="خدمات">خدمات</option>
+            <option value="میوه‌جات">میوه‌جات</option>
+            <option value="مواد غذایی">مواد غذایی</option>
+            <option value="ورزشی">ورزشی</option>
+            <option value="سرگرمی">سرگرمی</option>
+          </select>
+          
+          <select 
+            className="px-4 py-3 rounded-lg glassmorphism text-white border-white/30 focus:border-white/50 focus:outline-none min-w-32"
+            value={selectedLocation}
+            onChange={(e) => setSelectedLocation(e.target.value)}
+            data-testid="select-location"
+          >
+            <option value="">همه شهرها</option>
+            <option value="کابل">کابل</option>
+            <option value="هرات">هرات</option>
+            <option value="بلخ">بلخ</option>
+            <option value="قندهار">قندهار</option>
+            <option value="ننگرهار">ننگرهار</option>
+            <option value="غزنی">غزنی</option>
+            <option value="بامیان">بامیان</option>
+            <option value="فراه">فراه</option>
+            <option value="کندز">کندز</option>
+            <option value="بدخشان">بدخشان</option>
+          </select>
+          
+          <button 
+            type="submit"
+            className="px-6 py-3 bg-white text-primary rounded-lg font-bold hover:bg-gray-100 transition-all duration-300 golden-border"
+            data-testid="button-search"
+          >
+            🔍 جستجو
+          </button>
+        </form>
       </div>
 
       <CategoryCircles />
