@@ -1,6 +1,8 @@
-import { type Product, type InsertProduct, type Category, type InsertCategory, type Province, type InsertProvince, products, categories, provinces } from "@shared/schema";
+import { type Product, type InsertProduct, type Category, type InsertCategory, type Province, type InsertProvince, type User, type InsertUser, products, categories, provinces, users } from "@shared/schema";
 import { db } from "./db";
 import { eq, ilike, and, desc, or, count, sql } from "drizzle-orm";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
 
 export interface IStorage {
   // Products
@@ -22,10 +24,28 @@ export interface IStorage {
   getProvinces(): Promise<Province[]>;
   getProvinceById(id: string): Promise<Province | undefined>;
   createProvince(province: InsertProvince): Promise<Province>;
+  
+  // Users
+  getUser(id: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: string, user: Partial<User>): Promise<User | undefined>;
+  
+  // Session store for authentication
+  sessionStore: session.Store;
 }
 
 export class DatabaseStorage implements IStorage {
   private initialized = false;
+  public sessionStore: session.Store;
+
+  constructor() {
+    const PostgresSessionStore = connectPg(session);
+    this.sessionStore = new PostgresSessionStore({
+      conString: process.env.DATABASE_URL,
+      createTableIfMissing: true,
+    });
+  }
 
   private async initializeData() {
     if (this.initialized) return;
@@ -108,12 +128,13 @@ export class DatabaseStorage implements IStorage {
     let conditions = [eq(products.isActive, true)];
     
     if (query) {
-      conditions.push(
-        or(
-          ilike(products.title, `%${query}%`),
-          ilike(products.description, `%${query}%`)
-        )
+      const textCondition = or(
+        ilike(products.title, `%${query}%`),
+        ilike(products.description, `%${query}%`)
       );
+      if (textCondition) {
+        conditions.push(textCondition);
+      }
     }
     
     if (category) {
@@ -258,6 +279,30 @@ export class DatabaseStorage implements IStorage {
   async createProvince(insertProvince: InsertProvince): Promise<Province> {
     const [province] = await db.insert(provinces).values(insertProvince).returning();
     return province;
+  }
+
+  // Users
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
+    const [user] = await db.update(users)
+      .set(updates)
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
   }
 }
 
