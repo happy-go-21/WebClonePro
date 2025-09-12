@@ -1,6 +1,6 @@
 import { type Product, type InsertProduct, type Category, type InsertCategory, type Province, type InsertProvince, products, categories, provinces } from "@shared/schema";
 import { db } from "./db";
-import { eq, ilike, and, desc } from "drizzle-orm";
+import { eq, ilike, and, desc, or, count, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Products
@@ -109,9 +109,10 @@ export class DatabaseStorage implements IStorage {
     
     if (query) {
       conditions.push(
-        // Search in title or description
-        // Note: Using ILIKE for case-insensitive search
-        // This is a simplified search - in production you'd want full-text search
+        or(
+          ilike(products.title, `%${query}%`),
+          ilike(products.description, `%${query}%`)
+        )
       );
     }
     
@@ -123,46 +124,108 @@ export class DatabaseStorage implements IStorage {
       conditions.push(eq(products.location, location));
     }
 
-    // For text search, we'll filter in memory for now since it's more complex with Drizzle
-    const allProducts = await db.select().from(products)
+    return await db.select().from(products)
       .where(and(...conditions))
       .orderBy(desc(products.createdAt));
-
-    if (query) {
-      return allProducts.filter(product => 
-        product.title.toLowerCase().includes(query.toLowerCase()) ||
-        product.description.toLowerCase().includes(query.toLowerCase())
-      );
-    }
-
-    return allProducts;
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    const [product] = await db.insert(products).values(insertProduct).returning();
-    
-    // Update category count - count products in this category
-    const productCount = await db.select().from(products)
-      .where(and(eq(products.category, product.category), eq(products.isActive, true)));
-    
-    await db.update(categories)
-      .set({ count: productCount.length })
-      .where(eq(categories.name, product.category));
-    
-    return product;
+    return await db.transaction(async (tx) => {
+      const [product] = await tx.insert(products).values(insertProduct).returning();
+      
+      // Update category count using atomic COUNT(*) subquery
+      await tx.update(categories)
+        .set({ 
+          count: sql`(
+            SELECT COUNT(*) 
+            FROM ${products} 
+            WHERE ${products.category} = ${product.category} 
+            AND ${products.isActive} = true
+          )`
+        })
+        .where(eq(categories.name, product.category));
+      
+      return product;
+    });
   }
 
   async updateProduct(id: string, updates: Partial<Product>): Promise<Product | undefined> {
-    const [product] = await db.update(products)
-      .set(updates)
-      .where(eq(products.id, id))
-      .returning();
-    return product || undefined;
+    return await db.transaction(async (tx) => {
+      // First get the current product to detect category/isActive changes
+      const [currentProduct] = await tx.select().from(products).where(eq(products.id, id));
+      if (!currentProduct) return undefined;
+      
+      // Update the product
+      const [updatedProduct] = await tx.update(products)
+        .set(updates)
+        .where(eq(products.id, id))
+        .returning();
+      
+      if (!updatedProduct) return undefined;
+      
+      // Check if category or isActive changed
+      const categoryChanged = updates.category && updates.category !== currentProduct.category;
+      const isActiveChanged = updates.isActive !== undefined && updates.isActive !== currentProduct.isActive;
+      
+      if (categoryChanged || isActiveChanged) {
+        // Update old category count if category changed
+        if (categoryChanged) {
+          await tx.update(categories)
+            .set({ 
+              count: sql`(
+                SELECT COUNT(*) 
+                FROM ${products} 
+                WHERE ${products.category} = ${currentProduct.category} 
+                AND ${products.isActive} = true
+              )`
+            })
+            .where(eq(categories.name, currentProduct.category));
+        }
+        
+        // Update new/current category count
+        const targetCategory = updates.category || currentProduct.category;
+        await tx.update(categories)
+          .set({ 
+            count: sql`(
+              SELECT COUNT(*) 
+              FROM ${products} 
+              WHERE ${products.category} = ${targetCategory} 
+              AND ${products.isActive} = true
+            )`
+          })
+          .where(eq(categories.name, targetCategory));
+      }
+      
+      return updatedProduct;
+    });
   }
 
   async deleteProduct(id: string): Promise<boolean> {
-    const result = await db.delete(products).where(eq(products.id, id));
-    return (result.rowCount || 0) > 0;
+    return await db.transaction(async (tx) => {
+      // First get the product to know which category to update
+      const [productToDelete] = await tx.select().from(products).where(eq(products.id, id));
+      if (!productToDelete) return false;
+      
+      // Delete the product
+      const result = await tx.delete(products).where(eq(products.id, id));
+      const deleted = (result.rowCount || 0) > 0;
+      
+      if (deleted) {
+        // Update category count using atomic COUNT(*) subquery
+        await tx.update(categories)
+          .set({ 
+            count: sql`(
+              SELECT COUNT(*) 
+              FROM ${products} 
+              WHERE ${products.category} = ${productToDelete.category} 
+              AND ${products.isActive} = true
+            )`
+          })
+          .where(eq(categories.name, productToDelete.category));
+      }
+      
+      return deleted;
+    });
   }
 
   // Categories
