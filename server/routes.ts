@@ -3,8 +3,12 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertProductSchema } from "@shared/schema";
 import { z } from "zod";
+import { setupAuth } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication routes - creates /api/register, /api/login, /api/logout, /api/user endpoints
+  setupAuth(app);
+
   // Products routes
   app.get("/api/products", async (req, res) => {
     try {
