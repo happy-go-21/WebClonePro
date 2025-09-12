@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>بازار افغانستان | خانه</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- PWA Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="بازار افغانستان">
+  <meta name="theme-color" content="#302b63">
+  <meta name="msapplication-TileColor" content="#0f0c29">
+
+  <!-- Description and Keywords -->
+  <meta name="description" content="بازار افغانستان - بزرگترین بازار آنلاین کشور برای خرید و فروش املاک، خودرو، الکترونیکی و سایر کالاها">
+  <meta name="keywords" content="بازار, افغانستان, آگهی, خرید, فروش, املاک, خودرو, الکترونیکی">
+
+  <!-- CSS Styles -->
+  <link rel="stylesheet" href="style.css">
+  
+  <script src="api.js"></script>
+  <script src="script.js" defer></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Tahoma', sans-serif;
+      direction: rtl;
+      color: #f0f0f0;
+      padding: 20px;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    }
+
+    .section-box {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      padding: 20px;
+      margin-bottom: 30px;
+      backdrop-filter: blur(8px);
+    }
+
+    .section-box h2 {
+      margin-top: 0;
+      color: #ffffff;
+      font-size: 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      padding-bottom: 10px;
+    }
+
+    .nav-bar {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .nav-bar {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 3px;
+      }
+
+      .nav-bar a {
+        padding: 6px 4px;
+        font-size: 10px;
+        text-align: center;
+      }
+
+      .circle-item {
+        min-width: 130px;
+        width: 130px;
+        height: 130px;
+        padding-top: 30px;
+        font-size: 24px;
+      }
+
+      .circle-item span {
+        font-size: 16px;
+        margin-top: 6px;
+      }
+    }
+
+    .nav-bar a {
+      text-decoration: none;
+      font-weight: bold;
+      color: #ffffff;
+      padding: 8px 5px;
+      border-radius: 6px;
+      background-color: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      font-size: 11px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-bar a:hover {
+      background-color: #ffffff;
+      color: #6a11cb;
+      border-color: #ffffff;
+    }
+
+    .circle-list {
+      display: flex;
+      gap: 25px;
+      overflow-x: auto;
+      padding: 15px 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .circle-item {
+      min-width: 140px;
+      width: 140px;
+      height: 140px;
+      background: linear-gradient(135deg, 
+        rgba(255, 107, 107, 0.9) 0%,
+        rgba(255, 142, 83, 0.8) 15%,
+        rgba(255, 193, 7, 0.7) 35%,
+        rgba(139, 195, 74, 0.8) 55%,
+        rgba(3, 169, 244, 0.7) 75%,
+        rgba(156, 39, 176, 0.8) 90%,
+        rgba(233, 30, 99, 0.9) 100%);
+      border-radius: 60% 40% 30% 70%;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      text-align: center;
+      padding-top: 35px;
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+      transition: all 0.3s ease, border-radius 2s ease-in-out;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .circle-item::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, 
+        transparent 30%, 
+        rgba(255,255,255,0.15) 50%, 
+        transparent 70%);
+      animation: shimmer 3s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .circle-item:hover {
+      border-radius: 30% 70% 70% 30%;
+      transform: translateY(-8px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+      background: linear-gradient(135deg, 
+        rgba(255, 107, 107, 1) 0%,
+        rgba(255, 142, 83, 0.9) 25%,
+        rgba(255, 193, 7, 0.8) 50%,
+        rgba(139, 195, 74, 0.9) 75%,
+        rgba(3, 169, 244, 1) 100%);
+    }
+
+    /* Province-specific styling */
+    .province-item {
+      background: linear-gradient(135deg, 
+        rgba(76, 175, 80, 0.9) 0%,
+        rgba(139, 195, 74, 0.8) 25%,
+        rgba(255, 193, 7, 0.7) 50%,
+        rgba(255, 152, 0, 0.8) 75%,
+        rgba(255, 87, 34, 0.9) 100%);
+      border-radius: 40% 60% 60% 40%;
+    }
+
+    .province-item:hover {
+      border-radius: 70% 30% 30% 70%;
+      background: linear-gradient(135deg, 
+        rgba(76, 175, 80, 1) 0%,
+        rgba(139, 195, 74, 0.9) 25%,
+        rgba(255, 193, 7, 0.8) 50%,
+        rgba(255, 152, 0, 0.9) 75%,
+        rgba(255, 87, 34, 1) 100%);
+    }
+
+    .circle-item span {
+      display: block;
+      margin-top: 8px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .search-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .search-form input {
+      flex: 2;
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #ffffff;
+      border-radius: 8px;
+      background-color: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+
+    .search-form input::placeholder {
+      color: rgba(255,255,255,0.7);
+    }
+
+    .search-form select {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #ffffff;
+      border-radius: 8px;
+      background-color: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+
+    .search-form select option {
+      background-color: #2a2a2a;
+      color: #fff;
+    }
+
+    .search-form button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #ffffff;
+      color: #6a11cb;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-weight: bold;
+    }
+
+    .search-form button:hover {
+      background-color: #f0f0f0;
+    }
+
+    .top-tools {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      display: flex;
+      gap: 8px;
+      z-index: 999;
+    }
+
+    .top-tools button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 20px;
+      background-color: rgba(255,255,255,0.2);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+
+    .top-tools button:hover {
+      background-color: rgba(255,255,255,0.4);
+    }
+
+    body.dark-mode {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #3a3a3a 100%);
+    }
+
+    /* استایل آخرین آگهی - یک آیتم بزرگ */
+    .latest-ad-container {
+      display: flex;
+      justify-content: center;
+      padding: 20px 0;
+    }
+
+    .latest-ad-item {
+      background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 15px;
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .latest-ad-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+      border-color: rgba(255,255,255,0.4);
+    }
+
+    .latest-ad-item h3 {
+      font-size: 24px;
+      margin: 10px 0;
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .latest-ad-item .price {
+      font-size: 20px;
+      color: #ffd700;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .latest-ad-item .city {
+      font-size: 16px;
+      color: #cccccc;
+      margin: 5px 0;
+    }
+
+    .latest-ad-item .description {
+      font-size: 16px;
+      color: #e0e0e0;
+      line-height: 1.5;
+      margin: 15px 0;
+    }
+
+    /* حاشیه زرد متحرک برای همه دکمه‌ها */
+    button, .nav-bar a, .circle-item, .latest-ad-item {
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before, .nav-bar a::before, .circle-item::before, .latest-ad-item::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700, #ffed4e);
+      background-size: 400% 400%;
+      border-radius: inherit;
+      z-index: -1;
+      animation: borderGlow 2s ease-in-out infinite;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    button:hover::before, .nav-bar a:hover::before, .circle-item:hover::before, .latest-ad-item:hover::before {
+      opacity: 1;
+    }
+
+    @keyframes borderGlow {
+      0%, 100% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+    }
+
+    /* انیمیشن کلیک */
+    button:active, .nav-bar a:active, .circle-item:active, .latest-ad-item:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease;
+    }
+
+    /* دکمه بازگشت */
+    .back-button {
+      position: fixed;
+      top: 80px;
+      left: 15px;
+      padding: 10px 15px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 25px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(8px);
+      z-index: 998;
+      font-size: 14px;
+    }
+
+    .back-button:hover {
+      background: linear-gradient(145deg, rgba(255,255,255,0.3), rgba(255,255,255,0.2));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    }
+
+    /* Top Tools Bar */
+    .top-tools {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      display: flex;
+      gap: 8px;
+      z-index: 999;
+      align-items: center;
+    }
+
+    .top-tools button, .top-tools .login-link {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 20px;
+      background-color: rgba(255,255,255,0.2);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+    }
+
+    .top-tools button:hover, .top-tools .login-link:hover {
+      background-color: rgba(255,255,255,0.4);
+    }
+
+    .user-info {
+      background-color: rgba(76, 175, 80, 0.3);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    /* Google Translate Styling */
+    #google_translate_element {
+      background-color: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 4px 8px;
+    }
+
+    #google_translate_element select {
+      background-color: transparent;
+      border: none;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .goog-te-combo {
+      color: white !important;
+      background-color: transparent !important;
+      border: none !important;
+      font-weight: bold !important;
+    }
+
+    .goog-te-gadget {
+      font-family: 'Tahoma', sans-serif !important;
+    }
+
+    .goog-te-gadget .goog-te-combo {
+      color: white !important;
+      background: rgba(255,255,255,0.2) !important;
+      border: none !important;
+      border-radius: 15px !important;
+      padding: 6px 10px !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header with consistent language and login functionality -->
+  <div id="top-header" class="top-tools">
+    <!-- This will be populated by updateTopHeader() function from script.js -->
+  </div>
+
+
+  <!-- منوی اصلی -->
+  <div class="section-box">
+    <h2>منوی اصلی</h2>
+    <div class="nav-bar">
+      <a href="index.html">🏠 خانه</a>
+      <a href="post.html">📝 ثبت آگهی</a>
+      <a href="products.html">🛍️ محصولات</a>
+      <a href="services.html">🛠️ خدمات</a>
+    </div>
+  </div>
+
+  <!-- جستجو -->
+  <div class="section-box">
+    <h2>جستجو در بازار</h2>
+    <form class="search-form" onsubmit="handleSearch(event)">
+      <input type="text" placeholder="چی می‌گردی؟" id="searchInput">
+      <select id="categorySelect">
+        <option value="">انتخاب دسته‌بندی</option>
+        <option value="all">همه دسته‌بندی‌ها</option>
+        <option value="vehicles">وسایط نقلیه</option>
+        <option value="realestate">املاک</option>
+        <option value="electronics">الکترونیکی</option>
+        <option value="mens-clothing">لباس مردانه</option>
+        <option value="womens-clothing">لباس زنانه</option>
+        <option value="childrens-clothing">لباس کودکان</option>
+        <option value="gold-jewelry">طلا و جواهرات</option>
+        <option value="home">لوازم خانگی</option>
+        <option value="jobs">استخدام</option>
+        <option value="services">خدمات</option>
+        <option value="books">کتاب و آموزش</option>
+        <option value="kids">لوازم کودک</option>
+        <option value="fruits">میوه‌جات</option>
+        <option value="food">مواد غذایی</option>
+        <option value="sports">ورزشی</option>
+        <option value="games">سرگرمی</option>
+      </select>
+      <select id="citySelect">
+        <option value="">انتخاب ولایت</option>
+        <option value="all">همه ولایات</option>
+        <option value="kabul">کابل</option>
+        <option value="herat">هرات</option>
+        <option value="balkh">بلخ</option>
+        <option value="kandahar">قندهار</option>
+        <option value="nangarhar">ننگرهار</option>
+        <option value="ghazni">غزنی</option>
+        <option value="bamyan">بامیان</option>
+        <option value="farah">فراه</option>
+        <option value="kunduz">کندز</option>
+        <option value="badakhshan">بدخشان</option>
+        <option value="takhar">تخار</option>
+        <option value="baghlan">بغلان</option>
+        <option value="faryab">فاریاب</option>
+        <option value="jawzjan">جوزجان</option>
+        <option value="sar-e-pol">سرپل</option>
+        <option value="samangan">سمنگان</option>
+        <option value="parwan">پروان</option>
+        <option value="kapisa">کاپیسا</option>
+        <option value="panjshir">پنجشیر</option>
+        <option value="wardak">وردک</option>
+        <option value="logar">لوگر</option>
+        <option value="khost">خوست</option>
+        <option value="paktya">پکتیا</option>
+        <option value="paktika">پکتیکا</option>
+        <option value="kunar">کنر</option>
+        <option value="nuristan">نورستان</option>
+        <option value="laghman">لغمان</option>
+        <option value="helmand">هلمند</option>
+        <option value="nimroz">نیمروز</option>
+        <option value="zabul">زابل</option>
+        <option value="uruzgan">ارزگان</option>
+        <option value="ghor">غور</option>
+        <option value="badghis">بادغیس</option>
+        <option value="daykundi">دایکندی</option>
+      </select>
+      <button type="submit">🔍 جستجو</button>
+    </form>
+  </div>
+
+  <!-- دسته‌بندی‌ها -->
+  <div class="section-box">
+    <h2>همه دسته‌بندی‌ها</h2>
+    <div class="circle-list">
+      <div class="circle-item" onclick="showSubcategory('vehicles')">🚗<span>وسایل نقلیه</span></div>
+      <div class="circle-item" onclick="window.location.href='realestate.html'">🏠<span>املاک</span></div>
+      <div class="circle-item" onclick="window.location.href='electronics.html'">📱<span>الکترونیکی</span></div>
+      <div class="circle-item" onclick="window.location.href='mens-clothing.html'">👔<span>لباس مردانه</span></div>
+      <div class="circle-item" onclick="window.location.href='womens-clothing.html'">👗<span>لباس زنانه</span></div>
+      <div class="circle-item" onclick="window.location.href='childrens-clothing.html'">👶<span>لباس کودکان</span></div>
+      <div class="circle-item" onclick="window.location.href='gold-jewelry.html'">💎<span>طلا و جواهرات</span></div>
+      <div class="circle-item" onclick="window.location.href='books.html'">📚<span>آموزش</span></div>
+      <div class="circle-item" onclick="window.location.href='kids.html'">🧸<span>لوازم کودک</span></div>
+      <div class="circle-item" onclick="window.location.href='home.html'">🛋️<span>لوازم خانگی</span></div>
+      <div class="circle-item" onclick="window.location.href='jobs.html'">💼<span>استخدام</span></div>
+      <div class="circle-item" onclick="window.location.href='services.html'">🛠️<span>خدمات</span></div>
+      <div class="circle-item" onclick="window.location.href='fruits.html'">🍎<span>میوه‌جات</span></div>
+      <div class="circle-item" onclick="window.location.href='food.html'">🥘<span>مواد غذایی</span></div>
+      <div class="circle-item" onclick="window.location.href='sports.html'">⚽<span>ورزشی</span></div>
+      <div class="circle-item" onclick="window.location.href='games.html'">🎮<span>سرگرمی</span></div>
+    </div>
+  </div>
+
+  <!-- ولایات افغانستان -->
+  <div class="section-box">
+    <h2>همه ولایات افغانستان</h2>
+    <div class="circle-list">
+      <div class="circle-item province-item" onclick="searchCity('kabul')">🏛️<span>کابل</span></div>
+      <div class="circle-item province-item" onclick="searchCity('herat')">🕌<span>هرات</span></div>
+      <div class="circle-item province-item" onclick="searchCity('mazar')">🏺<span>بلخ</span></div>
+      <div class="circle-item province-item" onclick="searchCity('kandahar')">🏜️<span>قندهار</span></div>
+      <div class="circle-item province-item" onclick="searchCity('nangarhar')">🏔️<span>ننگرهار</span></div>
+      <div class="circle-item province-item" onclick="searchCity('ghazni')">🏰<span>غزنی</span></div>
+      <div class="circle-item province-item" onclick="searchCity('bamyan')">⛰️<span>بامیان</span></div>
+      <div class="circle-item" onclick="searchCity('farah')">🌾<span>فراه</span></div>
+      <div class="circle-item" onclick="searchCity('kunduz')">🌿<span>کندز</span></div>
+      <div class="circle-item" onclick="searchCity('badakhshan')">🏔️<span>بدخشان</span></div>
+      <div class="circle-item" onclick="searchCity('takhar')">🏞️<span>تخار</span></div>
+      <div class="circle-item" onclick="searchCity('baghlan')">🌸<span>بغلان</span></div>
+      <div class="circle-item" onclick="searchCity('faryab')">🌾<span>فاریاب</span></div>
+      <div class="circle-item" onclick="searchCity('jawzjan')">🏜️<span>جوزجان</span></div>
+      <div class="circle-item" onclick="searchCity('sar-e-pol')">⛰️<span>سرپل</span></div>
+      <div class="circle-item" onclick="searchCity('samangan')">🏛️<span>سمنگان</span></div>
+      <div class="circle-item" onclick="searchCity('parwan')">🌸<span>پروان</span></div>
+      <div class="circle-item" onclick="searchCity('kapisa')">🌿<span>کاپیسا</span></div>
+      <div class="circle-item" onclick="searchCity('panjshir')">💎<span>پنجشیر</span></div>
+      <div class="circle-item" onclick="searchCity('wardak')">⛰️<span>وردک</span></div>
+      <div class="circle-item" onclick="searchCity('logar')">🌱<span>لوگر</span></div>
+      <div class="circle-item" onclick="searchCity('khost')">🏞️<span>خوست</span></div>
+      <div class="circle-item" onclick="searchCity('paktya')">🏔️<span>پکتیا</span></div>
+      <div class="circle-item" onclick="searchCity('paktika')">🌲<span>پکتیکا</span></div>
+      <div class="circle-item" onclick="searchCity('kunar')">🌊<span>کنر</span></div>
+      <div class="circle-item" onclick="searchCity('nuristan')">🏔️<span>نورستان</span></div>
+      <div class="circle-item" onclick="searchCity('laghman')">🌸<span>لغمان</span></div>
+      <div class="circle-item" onclick="searchCity('helmand')">🏜️<span>هلمند</span></div>
+      <div class="circle-item" onclick="searchCity('nimroz')">🌅<span>نیمروز</span></div>
+      <div class="circle-item" onclick="searchCity('zabul')">🏜️<span>زابل</span></div>
+      <div class="circle-item" onclick="searchCity('uruzgan')">⛰️<span>ارزگان</span></div>
+      <div class="circle-item" onclick="searchCity('ghor')">🏔️<span>غور</span></div>
+      <div class="circle-item" onclick="searchCity('badghis')">🌾<span>بادغیس</span></div>
+      <div class="circle-item" onclick="searchCity('daykundi')">🌸<span>دایکندی</span></div>
+    </div>
+  </div>
+
+  <!-- آخرین آگهی -->
+  <div class="section-box">
+    <h2>آخرین آگهی</h2>
+    <div id="latestAd" class="latest-ad-container">
+      <!-- آخرین آگهی اینجا نمایش داده می‌شود -->
+    </div>
+  </div>
+
+  <!-- Latest Ads Section -->
+  <div class="section-box">
+    <h2 data-translate="latestAds">آخرین آگهی‌ها</h2>
+    <div id="adsContainer"></div>
+  </div>
+
+  <!-- درباره بازار -->
+  <div class="section-box">
+    <h2>خوش آمدید به بازار افغانستان</h2>
+    <p style="line-height: 1.8; font-size: 16px;">
+      بزرگترین بازار آنلاین افغانستان که در آن می‌توانید هر چیزی که نیاز دارید پیدا کنید.
+      از املاک و وسایل نقلیه گرفته تا لوازم خانگی، الکترونیکی و فرصت‌های شغلی.
+    </p>
+    <p style="line-height: 1.8; font-size: 16px;">
+      با استفاده از سیستم جستجوی پیشرفته و دسته‌بندی‌های کامل، به راحتی آنچه که می‌خواهید پیدا کنید.
+    </p>
+  </div>
+
+  <!-- JavaScript functions are now in script.js -->
+  <script>
+    // Initialize header when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Make sure updateTopHeader function is available and call it
+      if (typeof updateTopHeader === 'function') {
+        updateTopHeader();
+      }
+    });
+  </script>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="/terms">قوانین</a>
+      <a href="/privacy">حریم خصوصی</a>
+      <a href="/contact">تماس با ما</a>
+      <a href="/feedback">ارسال نظرات</a>
+    </div>
+
+    <hr class="footer-divider">
+
+    <div class="footer-info">
+      <div class="footer-left">
+        <p>© 2025 ساخته شده توسط میرویس رحیمی</p>
+      </div>
+      <div class="footer-right">
+        <p>شماره تماس: +93 78 000 0000</p>
+        <p>آدرس: بلخ، افغانستان</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
