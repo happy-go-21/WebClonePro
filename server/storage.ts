@@ -1,5 +1,6 @@
-import { type Product, type InsertProduct, type Category, type InsertCategory, type Province, type InsertProvince } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { type Product, type InsertProduct, type Category, type InsertCategory, type Province, type InsertProvince, products, categories, provinces } from "@shared/schema";
+import { db } from "./db";
+import { eq, ilike, and, desc } from "drizzle-orm";
 
 export interface IStorage {
   // Products
@@ -23,169 +24,178 @@ export interface IStorage {
   createProvince(province: InsertProvince): Promise<Province>;
 }
 
-export class MemStorage implements IStorage {
-  private products: Map<string, Product>;
-  private categories: Map<string, Category>;
-  private provinces: Map<string, Province>;
+export class DatabaseStorage implements IStorage {
+  private initialized = false;
 
-  constructor() {
-    this.products = new Map();
-    this.categories = new Map();
-    this.provinces = new Map();
-    this.initializeData();
-  }
+  private async initializeData() {
+    if (this.initialized) return;
+    
+    // Check if categories exist
+    const existingCategories = await db.select().from(categories).limit(1);
+    if (existingCategories.length === 0) {
+      // Initialize categories
+      const defaultCategories: InsertCategory[] = [
+        { name: "املاک", icon: "🏠", count: 0 },
+        { name: "خودرو", icon: "🚗", count: 0 },
+        { name: "الکترونیکی", icon: "📱", count: 0 },
+        { name: "لباس مردانه", icon: "👔", count: 0 },
+        { name: "لباس زنانه", icon: "👗", count: 0 },
+        { name: "لباس کودکان", icon: "👶", count: 0 },
+        { name: "طلا و جواهرات", icon: "💎", count: 0 },
+        { name: "لوازم خانگی", icon: "🛋️", count: 0 },
+        { name: "کتاب و آموزش", icon: "📚", count: 0 },
+        { name: "لوازم کودک", icon: "🧸", count: 0 },
+        { name: "استخدام", icon: "💼", count: 0 },
+        { name: "خدمات", icon: "🛠️", count: 0 },
+        { name: "میوه‌جات", icon: "🍎", count: 0 },
+        { name: "مواد غذایی", icon: "🥘", count: 0 },
+        { name: "ورزشی", icon: "⚽", count: 0 },
+        { name: "سرگرمی", icon: "🎮", count: 0 },
+      ];
 
-  private initializeData() {
-    // Initialize categories
-    const defaultCategories: InsertCategory[] = [
-      { name: "املاک", icon: "🏠", count: 0 },
-      { name: "خودرو", icon: "🚗", count: 0 },
-      { name: "الکترونیکی", icon: "📱", count: 0 },
-      { name: "لباس مردانه", icon: "👔", count: 0 },
-      { name: "لباس زنانه", icon: "👗", count: 0 },
-      { name: "لباس کودکان", icon: "👶", count: 0 },
-      { name: "طلا و جواهرات", icon: "💎", count: 0 },
-      { name: "لوازم خانگی", icon: "🛋️", count: 0 },
-      { name: "کتاب و آموزش", icon: "📚", count: 0 },
-      { name: "لوازم کودک", icon: "🧸", count: 0 },
-      { name: "استخدام", icon: "💼", count: 0 },
-      { name: "خدمات", icon: "🛠️", count: 0 },
-      { name: "میوه‌جات", icon: "🍎", count: 0 },
-      { name: "مواد غذایی", icon: "🥘", count: 0 },
-      { name: "ورزشی", icon: "⚽", count: 0 },
-      { name: "سرگرمی", icon: "🎮", count: 0 },
-    ];
+      await db.insert(categories).values(defaultCategories);
+    }
 
-    defaultCategories.forEach(cat => {
-      const id = randomUUID();
-      this.categories.set(id, { ...cat, id, count: cat.count || 0 });
-    });
+    // Check if provinces exist
+    const existingProvinces = await db.select().from(provinces).limit(1);
+    if (existingProvinces.length === 0) {
+      // Initialize provinces
+      const defaultProvinces: InsertProvince[] = [
+        { name: "کابل", icon: "🏛️", population: "4.6M" },
+        { name: "هرات", icon: "🕌", population: "1.9M" },
+        { name: "بلخ", icon: "🏺", population: "1.5M" },
+        { name: "قندهار", icon: "🏜️", population: "614K" },
+        { name: "ننگرهار", icon: "🏔️", population: "1.7M" },
+        { name: "غزنی", icon: "🏰", population: "1.3M" },
+        { name: "بامیان", icon: "⛰️", population: "455K" },
+        { name: "فراه", icon: "🌾", population: "385K" },
+        { name: "کندز", icon: "🌿", population: "1.1M" },
+        { name: "بدخشان", icon: "🏔️", population: "970K" },
+      ];
 
-    // Initialize provinces
-    const defaultProvinces: InsertProvince[] = [
-      { name: "کابل", icon: "🏛️", population: "4.6M" },
-      { name: "هرات", icon: "🕌", population: "1.9M" },
-      { name: "بلخ", icon: "🏺", population: "1.5M" },
-      { name: "قندهار", icon: "🏜️", population: "614K" },
-      { name: "ننگرهار", icon: "🏔️", population: "1.7M" },
-      { name: "غزنی", icon: "🏰", population: "1.3M" },
-      { name: "بامیان", icon: "⛰️", population: "455K" },
-      { name: "فراه", icon: "🌾", population: "385K" },
-      { name: "کندز", icon: "🌿", population: "1.1M" },
-      { name: "بدخشان", icon: "🏔️", population: "970K" },
-    ];
+      await db.insert(provinces).values(defaultProvinces);
+    }
 
-    defaultProvinces.forEach(prov => {
-      const id = randomUUID();
-      this.provinces.set(id, { ...prov, id, population: prov.population || null });
-    });
+    this.initialized = true;
   }
 
   // Products
   async getProducts(): Promise<Product[]> {
-    return Array.from(this.products.values()).sort((a, b) => 
-      new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
-    );
+    await this.initializeData();
+    return await db.select().from(products)
+      .where(eq(products.isActive, true))
+      .orderBy(desc(products.createdAt));
   }
 
   async getProductById(id: string): Promise<Product | undefined> {
-    return this.products.get(id);
+    const [product] = await db.select().from(products).where(eq(products.id, id));
+    return product || undefined;
   }
 
   async getProductsByCategory(category: string): Promise<Product[]> {
-    return Array.from(this.products.values()).filter(p => p.category === category);
+    return await db.select().from(products)
+      .where(and(eq(products.category, category), eq(products.isActive, true)))
+      .orderBy(desc(products.createdAt));
   }
 
   async getProductsByLocation(location: string): Promise<Product[]> {
-    return Array.from(this.products.values()).filter(p => p.location === location);
+    return await db.select().from(products)
+      .where(and(eq(products.location, location), eq(products.isActive, true)))
+      .orderBy(desc(products.createdAt));
   }
 
   async searchProducts(query: string, category?: string, location?: string): Promise<Product[]> {
-    return Array.from(this.products.values()).filter(product => {
-      const matchesQuery = !query || 
+    let conditions = [eq(products.isActive, true)];
+    
+    if (query) {
+      conditions.push(
+        // Search in title or description
+        // Note: Using ILIKE for case-insensitive search
+        // This is a simplified search - in production you'd want full-text search
+      );
+    }
+    
+    if (category) {
+      conditions.push(eq(products.category, category));
+    }
+    
+    if (location) {
+      conditions.push(eq(products.location, location));
+    }
+
+    // For text search, we'll filter in memory for now since it's more complex with Drizzle
+    const allProducts = await db.select().from(products)
+      .where(and(...conditions))
+      .orderBy(desc(products.createdAt));
+
+    if (query) {
+      return allProducts.filter(product => 
         product.title.toLowerCase().includes(query.toLowerCase()) ||
-        product.description.toLowerCase().includes(query.toLowerCase());
-      
-      const matchesCategory = !category || product.category === category;
-      const matchesLocation = !location || product.location === location;
-      
-      return matchesQuery && matchesCategory && matchesLocation && product.isActive;
-    });
+        product.description.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    return allProducts;
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    const id = randomUUID();
-    const product: Product = {
-      ...insertProduct,
-      id,
-      isActive: true,
-      createdAt: new Date(),
-      imageUrl: insertProduct.imageUrl || null,
-    };
-    this.products.set(id, product);
+    const [product] = await db.insert(products).values(insertProduct).returning();
     
-    // Update category count
-    const category = Array.from(this.categories.values()).find(c => c.name === product.category);
-    if (category) {
-      category.count = (category.count || 0) + 1;
-    }
+    // Update category count - count products in this category
+    const productCount = await db.select().from(products)
+      .where(and(eq(products.category, product.category), eq(products.isActive, true)));
+    
+    await db.update(categories)
+      .set({ count: productCount.length })
+      .where(eq(categories.name, product.category));
     
     return product;
   }
 
   async updateProduct(id: string, updates: Partial<Product>): Promise<Product | undefined> {
-    const product = this.products.get(id);
-    if (!product) return undefined;
-    
-    const updatedProduct = { ...product, ...updates };
-    this.products.set(id, updatedProduct);
-    return updatedProduct;
+    const [product] = await db.update(products)
+      .set(updates)
+      .where(eq(products.id, id))
+      .returning();
+    return product || undefined;
   }
 
   async deleteProduct(id: string): Promise<boolean> {
-    const product = this.products.get(id);
-    if (!product) return false;
-    
-    // Update category count
-    const category = Array.from(this.categories.values()).find(c => c.name === product.category);
-    if (category && (category.count || 0) > 0) {
-      category.count = (category.count || 0) - 1;
-    }
-    
-    return this.products.delete(id);
+    const result = await db.delete(products).where(eq(products.id, id));
+    return (result.rowCount || 0) > 0;
   }
 
   // Categories
   async getCategories(): Promise<Category[]> {
-    return Array.from(this.categories.values());
+    await this.initializeData();
+    return await db.select().from(categories);
   }
 
   async getCategoryById(id: string): Promise<Category | undefined> {
-    return this.categories.get(id);
+    const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category || undefined;
   }
 
   async createCategory(insertCategory: InsertCategory): Promise<Category> {
-    const id = randomUUID();
-    const category: Category = { ...insertCategory, id, count: insertCategory.count || 0 };
-    this.categories.set(id, category);
+    const [category] = await db.insert(categories).values(insertCategory).returning();
     return category;
   }
 
   // Provinces
   async getProvinces(): Promise<Province[]> {
-    return Array.from(this.provinces.values());
+    await this.initializeData();
+    return await db.select().from(provinces);
   }
 
   async getProvinceById(id: string): Promise<Province | undefined> {
-    return this.provinces.get(id);
+    const [province] = await db.select().from(provinces).where(eq(provinces.id, id));
+    return province || undefined;
   }
 
   async createProvince(insertProvince: InsertProvince): Promise<Province> {
-    const id = randomUUID();
-    const province: Province = { ...insertProvince, id, population: insertProvince.population || null };
-    this.provinces.set(id, province);
+    const [province] = await db.insert(provinces).values(insertProvince).returning();
     return province;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
