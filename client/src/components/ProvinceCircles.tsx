@@ -14,18 +14,18 @@ const provinces = [
 
 export default function ProvinceCircles() {
   return (
-    <Card className="glassmorphism border-white/20">
+    <Card className="glassmorphism border-white/20 w-full">
       <CardContent className="p-6">
         <h3 className="text-xl font-bold text-white mb-4 text-center">ولایات</h3>
-        <ScrollArea className="h-80">
-          <div className="space-y-2">
+        <ScrollArea className="h-96 w-full">
+          <div className="flex flex-col space-y-2 pr-4">
             {provinces.map((province, index) => (
               <div
                 key={index}
-                className="bg-white/10 rounded-lg p-3 hover:bg-white/20 transition-all duration-300 cursor-pointer border border-white/20"
+                className="bg-white/10 rounded-lg p-3 hover:bg-white/20 transition-all duration-300 cursor-pointer border border-white/20 w-full"
               >
                 <div className="flex items-center gap-3">
-                  <MapPin className="h-5 w-5 text-blue-400" />
+                  <MapPin className="h-5 w-5 text-blue-400 flex-shrink-0" />
                   <span className="text-white font-medium">{province}</span>
                 </div>
               </div>

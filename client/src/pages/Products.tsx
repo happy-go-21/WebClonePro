@@ -86,7 +86,7 @@ export default function Products() {
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="flex flex-col space-y-6 w-full">
           {/* Categories */}
           <CategoryCircles />
           
