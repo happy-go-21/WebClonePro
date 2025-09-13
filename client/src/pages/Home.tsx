@@ -45,6 +45,8 @@ export default function Home() {
 
       <CategoryCircles />
 
+      <ProvinceCircles />
+
       {/* Featured Products */}
       <ProductGrid limit={4} title={t("featuredProducts")} />
 
@@ -73,8 +75,6 @@ export default function Home() {
           </div>
         </section>
       )}
-
-      <ProvinceCircles />
 
       {/* About Section */}
       <section className="bg-card rounded-xl p-8 shadow-md border border-border">

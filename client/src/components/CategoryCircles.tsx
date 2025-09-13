@@ -1,14 +1,30 @@
 
+
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ShoppingBag, Car, Home, Smartphone, Users } from "lucide-react";
+import { ShoppingBag, Car, Home, Smartphone, Users, Shirt, Baby, Book, Utensils, Gamepad2, Trophy, Briefcase, Hammer, Apple, Gem, Sofa, Truck, Plane, Bike, Music, Camera, Watch, Heart, Palette, Coffee, Gift } from "lucide-react";
 
 const categories = [
-  { id: 1, name: "خرید و فروش", icon: ShoppingBag, color: "bg-blue-500" },
-  { id: 2, name: "خودرو", icon: Car, color: "bg-green-500" },
-  { id: 3, name: "املاک", icon: Home, color: "bg-yellow-500" },
-  { id: 4, name: "الکترونیک", icon: Smartphone, color: "bg-purple-500" },
-  { id: 5, name: "خدمات", icon: Users, color: "bg-red-500" },
+  { id: 1, name: "وسایل نقلیه", icon: Car, color: "bg-blue-500" },
+  { id: 2, name: "املاک", icon: Home, color: "bg-green-500" },
+  { id: 3, name: "الکترونیکی", icon: Smartphone, color: "bg-purple-500" },
+  { id: 4, name: "لباس مردانه", icon: Shirt, color: "bg-indigo-500" },
+  { id: 5, name: "لباس زنانه", icon: ShoppingBag, color: "bg-pink-500" },
+  { id: 6, name: "لباس کودکان", icon: Baby, color: "bg-orange-500" },
+  { id: 7, name: "طلا و جواهرات", icon: Gem, color: "bg-yellow-500" },
+  { id: 8, name: "آموزش", icon: Book, color: "bg-teal-500" },
+  { id: 9, name: "لوازم کودک", icon: Baby, color: "bg-cyan-500" },
+  { id: 10, name: "لوازم خانگی", icon: Sofa, color: "bg-emerald-500" },
+  { id: 11, name: "استخدام", icon: Briefcase, color: "bg-slate-500" },
+  { id: 12, name: "خدمات", icon: Hammer, color: "bg-red-500" },
+  { id: 13, name: "میوه‌جات", icon: Apple, color: "bg-lime-500" },
+  { id: 14, name: "مواد غذایی", icon: Utensils, color: "bg-amber-500" },
+  { id: 15, name: "ورزشی", icon: Trophy, color: "bg-blue-600" },
+  { id: 16, name: "سرگرمی", icon: Gamepad2, color: "bg-violet-500" },
+  { id: 17, name: "موسیقی", icon: Music, color: "bg-rose-500" },
+  { id: 18, name: "دوربین", icon: Camera, color: "bg-gray-500" },
+  { id: 19, name: "ساعت", icon: Watch, color: "bg-zinc-500" },
+  { id: 20, name: "هدایا", icon: Gift, color: "bg-fuchsia-500" }
 ];
 
 export default function CategoryCircles() {

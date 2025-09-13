@@ -3,6 +3,7 @@ import { db } from "./db";
 import { eq, desc, and, or, ilike, count, sql } from "drizzle-orm";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
+import { sampleProducts } from "../client/src/lib/sampleData";
 
 export interface IStorage {
   // Session store for auth
@@ -214,6 +215,33 @@ export class DatabaseStorage implements IStorage {
   async getProvince(id: string): Promise<Province | undefined> {
     const [province] = await db.select().from(provinces).where(eq(provinces.id, id));
     return province || undefined;
+  }
+
+  async initializeSampleData(): Promise<void> {
+    try {
+      // Check if sample products already exist
+      const existingProducts = await db.select().from(products).limit(1);
+      
+      if (existingProducts.length === 0) {
+        // Insert sample products
+        const sampleProductsData: InsertProduct[] = sampleProducts.map(product => ({
+          title: product.title,
+          description: product.description,
+          price: product.price,
+          location: product.location,
+          category: product.category,
+          sellerId: "sample-seller",
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }));
+        
+        await db.insert(products).values(sampleProductsData);
+        console.log("Sample products initialized successfully");
+      }
+    } catch (error) {
+      console.error("Error initializing sample data:", error);
+    }
   }
 
   async updateProductCounts(): Promise<void> {

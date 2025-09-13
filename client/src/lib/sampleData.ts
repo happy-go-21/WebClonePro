@@ -1,315 +1,228 @@
-export const categories = [
-  {
-    id: "textiles",
-    name: "Textiles & Carpets",
-    icon: "fas fa-tshirt",
-    description: "Carpets, Fabrics",
-    productCount: 145
-  },
-  {
-    id: "handicrafts", 
-    name: "Handicrafts",
-    icon: "fas fa-palette",
-    description: "Art, Pottery",
-    productCount: 89
-  },
-  {
-    id: "jewelry",
-    name: "Jewelry",
-    icon: "fas fa-gem", 
-    description: "Traditional, Modern",
-    productCount: 67
-  },
-  {
-    id: "spices",
-    name: "Spices & Herbs",
-    icon: "fas fa-pepper-hot",
-    description: "Saffron, Herbs",
-    productCount: 134
-  },
-  {
-    id: "dried-fruits",
-    name: "Dried Fruits & Nuts",
-    icon: "fas fa-apple-alt",
-    description: "Nuts, Raisins",
-    productCount: 178
-  },
-  {
-    id: "instruments",
-    name: "Musical Instruments",
-    icon: "fas fa-music",
-    description: "Traditional Music",
-    productCount: 23
-  },
-  {
-    id: "clothing",
-    name: "Traditional Clothing",
-    icon: "fas fa-hat-cowboy",
-    description: "Ethnic Wear",
-    productCount: 56
-  },
-  {
-    id: "leather",
-    name: "Leather Goods",
-    icon: "fas fa-briefcase",
-    description: "Bags, Accessories",
-    productCount: 34
-  }
-];
 
 export const provinces = [
   {
     id: "kabul",
-    name: "Kabul",
+    name: "کابل",
     productCount: 324
   },
   {
     id: "herat",
-    name: "Herat", 
+    name: "هرات", 
     productCount: 298
   },
   {
     id: "kandahar",
-    name: "Kandahar",
+    name: "قندهار",
     productCount: 187
   },
   {
     id: "balkh",
-    name: "Balkh",
+    name: "بلخ",
     productCount: 156
   },
   {
     id: "nangarhar",
-    name: "Nangarhar",
+    name: "ننگرهار",
     productCount: 143
   },
   {
     id: "badakhshan",
-    name: "Badakhshan",
+    name: "بدخشان",
     productCount: 98
   },
   {
     id: "ghazni",
-    name: "Ghazni",
+    name: "غزنی",
     productCount: 87
   },
   {
     id: "bamyan",
-    name: "Bamyan",
+    name: "بامیان",
     productCount: 76
   },
   {
     id: "farah",
-    name: "Farah",
+    name: "فراه",
     productCount: 65
   },
   {
     id: "kunduz",
-    name: "Kunduz",
+    name: "کندوز",
     productCount: 54
   },
   {
     id: "takhar",
-    name: "Takhar",
+    name: "تخار",
     productCount: 43
   },
   {
     id: "faryab",
-    name: "Faryab",
+    name: "فاریاب",
     productCount: 39
   },
   {
     id: "baghlan",
-    name: "Baghlan",
+    name: "بغلان",
     productCount: 37
   },
   {
     id: "parwan",
-    name: "Parwan",
+    name: "پروان",
     productCount: 35
   },
   {
     id: "wardak",
-    name: "Wardak",
+    name: "وردک",
     productCount: 32
   },
   {
     id: "khost",
-    name: "Khost",
+    name: "خوست",
     productCount: 29
   },
   {
     id: "laghman",
-    name: "Laghman",
+    name: "لغمان",
     productCount: 27
   },
   {
     id: "kapisa",
-    name: "Kapisa",
+    name: "کاپیسا",
     productCount: 25
   },
   {
     id: "helmand",
-    name: "Helmand",
+    name: "هلمند",
     productCount: 24
   },
   {
     id: "kunar",
-    name: "Kunar",
+    name: "کنر",
     productCount: 22
   },
   {
     id: "logar",
-    name: "Logar",
+    name: "لوگر",
     productCount: 21
   },
   {
     id: "jawzjan",
-    name: "Jawzjan",
+    name: "جوزجان",
     productCount: 19
   },
   {
     id: "badghis",
-    name: "Badghis",
+    name: "بادغیس",
     productCount: 18
   },
   {
     id: "sar-e-pol",
-    name: "Sar-e-Pol",
+    name: "سرپل",
     productCount: 16
   },
   {
     id: "ghor",
-    name: "Ghor",
+    name: "غور",
     productCount: 15
   },
   {
     id: "paktya",
-    name: "Paktya",
+    name: "پکتیا",
     productCount: 14
   },
   {
     id: "paktika",
-    name: "Paktika",
+    name: "پکتیکا",
     productCount: 13
   },
   {
     id: "zabul",
-    name: "Zabul",
+    name: "زابل",
     productCount: 12
   },
   {
     id: "uruzgan",
-    name: "Uruzgan",
+    name: "ارزگان",
     productCount: 11
   },
   {
     id: "daykundi",
-    name: "Daykundi",
+    name: "دایکندی",
     productCount: 10
   },
   {
     id: "panjshir",
-    name: "Panjshir",
+    name: "پنجشیر",
     productCount: 9
   },
   {
     id: "samangan",
-    name: "Samangan",
+    name: "سمنگان",
     productCount: 8
   },
   {
     id: "nimroz",
-    name: "Nimroz",
+    name: "نیمروز",
     productCount: 7
   },
   {
     id: "nuristan",
-    name: "Nuristan",
+    name: "نورستان",
     productCount: 6
   }
 ];
 
-// Sample products with authentic Afghan product types
+export const categories = [
+  { id: 1, name: "وسایل نقلیه", productCount: 45 },
+  { id: 2, name: "املاک", productCount: 38 },
+  { id: 3, name: "الکترونیکی", productCount: 52 },
+  { id: 4, name: "لباس مردانه", productCount: 29 },
+  { id: 5, name: "لباس زنانه", productCount: 41 },
+  { id: 6, name: "لباس کودکان", productCount: 23 },
+  { id: 7, name: "طلا و جواهرات", productCount: 18 },
+  { id: 8, name: "آموزش", productCount: 31 },
+  { id: 9, name: "لوازم کودک", productCount: 26 },
+  { id: 10, name: "لوازم خانگی", productCount: 34 },
+  { id: 11, name: "استخدام", productCount: 15 },
+  { id: 12, name: "خدمات", productCount: 47 },
+  { id: 13, name: "میوه‌جات", productCount: 22 },
+  { id: 14, name: "مواد غذایی", productCount: 39 },
+  { id: 15, name: "ورزشی", productCount: 19 },
+  { id: 16, name: "سرگرمی", productCount: 24 },
+  { id: 17, name: "موسیقی", productCount: 13 },
+  { id: 18, name: "دوربین", productCount: 16 },
+  { id: 19, name: "ساعت", productCount: 11 },
+  { id: 20, name: "هدایا", productCount: 21 }
+];
+
 export const sampleProducts = [
-  {
-    id: "1",
-    title: "Handwoven Herat Carpet",
-    description: "Traditional Afghan carpet with intricate geometric patterns, hand-woven by master craftsmen in Herat. Made with premium wool and natural dyes.",
-    price: "$850",
-    category: "Textiles & Carpets",
-    location: "Herat",
-    images: ["https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "2", 
-    title: "Premium Afghan Saffron",
-    description: "World's finest saffron from the valleys of Herat. Hand-picked and dried using traditional methods. Grade A quality with intense aroma and color.",
-    price: "$45/10g",
-    category: "Spices & Herbs",
-    location: "Herat",
-    images: ["https://pixabay.com/get/g314dca748a20cd6ce7130a7ed12cf7a871410c1072a2c0702d959bbff573230ae7ee3ce24b475333c4c019c888462af594fb55b00a42f29c9e2c2eb34cb69123_1280.jpg"],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "3",
-    title: "Traditional Silver Necklace", 
-    description: "Authentic Afghan jewelry crafted with traditional techniques. Features intricate silver work with turquoise stones, representing centuries-old Afghan craftsmanship.",
-    price: "$125",
-    category: "Jewelry",
-    location: "Kabul",
-    images: ["https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "4",
-    title: "Premium Dried Fruits Mix",
-    description: "Assorted dried fruits from Kandahar including almonds, raisins, pistachios, and dried apricots. Naturally dried and packed fresh.",
-    price: "$28/kg", 
-    category: "Dried Fruits & Nuts",
-    location: "Kandahar",
-    images: ["https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "5",
-    title: "Traditional Bamyan Pottery",
-    description: "Handcrafted ceramic pottery with traditional blue and white patterns. Made using ancient techniques passed down through generations in Bamyan.",
-    price: "$85",
-    category: "Handicrafts", 
-    location: "Bamyan",
-    images: ["https://pixabay.com/get/gfbc90b44bcc7e288b4878c0f4196d7b6c761ada17d6e462a0b183791ff8579073b8764adb4ec66fecd1b40b799e25300_1280.jpg"],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "6",
-    title: "Handcrafted Leather Bag",
-    description: "Premium leather handbag crafted by skilled artisans in Ghazni. Features traditional Afghan designs and durable construction.",
-    price: "$145",
-    category: "Leather Goods",
-    location: "Ghazni", 
-    images: ["https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "7",
-    title: "Traditional Afghan Rubab",
-    description: "Authentic Afghan rubab handcrafted by master instrument makers. Features traditional wooden construction with decorative inlays.",
-    price: "$420",
-    category: "Musical Instruments",
-    location: "Kabul",
-    images: ["https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "8", 
-    title: "Embroidered Kuchi Dress",
-    description: "Traditional Afghan dress with intricate embroidery and mirror work. Authentic Kuchi style representing nomadic Afghan culture.",
-    price: "$95",
-    category: "Traditional Clothing",
-    location: "Balkh",
-    images: ["https://images.unsplash.com/photo-1583846835272-a66aba0885a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"],
-    createdAt: new Date().toISOString()
-  }
+  // وسایل نقلیه - کابل
+  { id: "1", title: "تویوتا کامری ۲۰۲۰", price: 25000, location: "کابل", category: "وسایل نقلیه", description: "خودروی تمیز و بدون تصادف" },
+  { id: "2", title: "هوندا سیویک ۲۰۱۹", price: 22000, location: "کابل", category: "وسایل نقلیه", description: "کیلومتر کم، نگهداری شده" },
+  { id: "3", title: "موتور یاماها ۲۵۰", price: 3500, location: "کابل", category: "وسایل نقلیه", description: "موتور سیکلت سالم و آماده کار" },
+  
+  // املاک - هرات
+  { id: "4", title: "خانه ۴ خوابه", price: 85000, location: "هرات", category: "املاک", description: "خانه نوساز با حیاط بزرگ" },
+  { id: "5", title: "آپارتمان ۲ خوابه", price: 45000, location: "هرات", category: "املاک", description: "آپارتمان مدرن در مرکز شهر" },
+  { id: "6", title: "زمین تجاری", price: 120000, location: "هرات", category: "املاک", description: "زمین در منطقه تجاری" },
+  
+  // الکترونیکی - قندهار
+  { id: "7", title: "آیفون ۱۴ پرو", price: 1200, location: "قندهار", category: "الکترونیکی", description: "گوشی نو و اورجینال" },
+  { id: "8", title: "لپ‌تاپ دل", price: 800, location: "قندهار", category: "الکترونیکی", description: "لپ‌تاپ گیمینگ قدرتمند" },
+  { id: "9", title: "تلویزیون سامسونگ ۵۵ اینچ", price: 650, location: "قندهار", category: "الکترونیکی", description: "تلویزیون ۴K هوشمند" },
+  
+  // لباس مردانه - بلخ
+  { id: "10", title: "کت و شلوار مجلسی", price: 150, location: "بلخ", category: "لباس مردانه", description: "کت شلوار برند ترک" },
+  { id: "11", title: "پیراهن کتان", price: 45, location: "بلخ", category: "لباس مردانه", description: "پیراهن تابستانی راحت" },
+  { id: "12", title: "کفش چرم", price: 85, location: "بلخ", category: "لباس مردانه", description: "کفش چرم طبیعی دست‌دوز" },
+  
+  // لباس زنانه - ننگرهار
+  { id: "13", title: "لباس مجلسی", price: 120, location: "ننگرهار", category: "لباس زنانه", description: "لباس شب زیبا و شیک" },
+  { id: "14", title: "مانتو بهاره", price: 75, location: "ننگرهار", category: "لباس زنانه", description: "مانتو طرح جدید" },
+  { id: "15", title: "کفش پاشنه بلند", price: 95, location: "ننگرهار", category: "لباس زنانه", description: "کفش مجلسی راحت" },
+  
+  // لوازم خانگی - غزنی
+  { id: "16", title: "یخچال فریزر", price: 450, location: "غزنی", category: "لوازم خانگی", description: "یخچال بزرگ و کم مصرف" },
+  { id: "17", title: "ماشین لباسشویی", price: 320, location: "غزنی", category: "لوازم خانگی", description: "ماشین لباسشویی ۷ کیلو" },
+  { id: "18", title: "مبل ۷ نفره", price: 680, location: "غزنی", category: "لوازم خانگی", description: "مبل چوبی با پارچه مخمل" }
 ];
