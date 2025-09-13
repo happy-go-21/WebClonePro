@@ -33,22 +33,26 @@ export default function CategoryCircles() {
     <section className="py-16 bg-card">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-12">{t("shopByCategory")}</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/products?category=${encodeURIComponent(category.name)}`}
-              className="text-center group cursor-pointer no-underline"
-              data-testid={`category-${category.id}`}
-            >
-              <div className="w-20 h-20 mx-auto bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <i className={`${category.icon} text-2xl text-white`}></i>
-              </div>
-              <h3 className="font-semibold text-foreground">{category.name}</h3>
-              <p className="text-sm text-muted-foreground">{category.description}</p>
-              <p className="text-xs text-primary font-medium">{category.productCount} {t("productsText")}</p>
-            </Link>
-          ))}
+        <div className="max-h-96 overflow-y-auto border border-border rounded-lg p-4">
+          <div className="flex flex-col space-y-4">
+            {categories.map((category) => (
+              <Link
+                key={category.id}
+                href={`/products?category=${encodeURIComponent(category.name)}`}
+                className="flex items-center p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group cursor-pointer no-underline"
+                data-testid={`category-${category.id}`}
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center ml-4 group-hover:scale-110 transition-transform">
+                  <i className={`${category.icon} text-xl text-white`}></i>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground text-lg">{category.name}</h3>
+                  <p className="text-sm text-muted-foreground">{category.description}</p>
+                  <p className="text-xs text-primary font-medium">{category.productCount} {t("productsText")}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </section>
