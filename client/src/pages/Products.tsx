@@ -99,7 +99,7 @@ export default function Products() {
           {/* Search and Filters */}
           <Card className="glassmorphism border-white/20">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-black flex items-center gap-2">
                 <Search className="h-5 w-5" />
                 جستجو و فیلتر
               </CardTitle>
@@ -111,7 +111,7 @@ export default function Products() {
                   placeholder="جستجو در محصولات..."
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                  className="bg-white/10 border-white/20 text-black placeholder:text-gray-600"
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 />
                 <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700">
