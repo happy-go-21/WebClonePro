@@ -1,60 +1,40 @@
-import { Link } from "wouter";
-import { useLanguage } from "@/hooks/useLanguage";
-import { useQuery } from "@tanstack/react-query";
-import type { Category } from "@shared/schema";
+
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ShoppingBag, Car, Home, Smartphone, Users } from "lucide-react";
+
+const categories = [
+  { id: 1, name: "خرید و فروش", icon: ShoppingBag, color: "bg-blue-500" },
+  { id: 2, name: "خودرو", icon: Car, color: "bg-green-500" },
+  { id: 3, name: "املاک", icon: Home, color: "bg-yellow-500" },
+  { id: 4, name: "الکترونیک", icon: Smartphone, color: "bg-purple-500" },
+  { id: 5, name: "خدمات", icon: Users, color: "bg-red-500" },
+];
 
 export default function CategoryCircles() {
-  const { t } = useLanguage();
-
-  const { data: categories = [], isLoading } = useQuery<Category[]>({
-    queryKey: ['/api/categories'],
-  });
-
-  if (isLoading) {
-    return (
-      <section className="py-16 bg-card">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">{t("shopByCategory")}</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="text-center animate-pulse">
-                <div className="w-20 h-20 mx-auto bg-muted rounded-full mb-4"></div>
-                <div className="h-4 bg-muted rounded mb-2"></div>
-                <div className="h-3 bg-muted rounded"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section className="py-16 bg-card">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">{t("shopByCategory")}</h2>
-        <div className="max-h-96 overflow-y-auto border border-border rounded-lg p-4">
-          <div className="flex flex-col space-y-4">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                href={`/products?category=${encodeURIComponent(category.name)}`}
-                className="flex items-center p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group cursor-pointer no-underline"
-                data-testid={`category-${category.id}`}
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center ml-4 group-hover:scale-110 transition-transform">
-                  <i className={`${category.icon} text-xl text-white`}></i>
+    <Card className="glassmorphism border-white/20">
+      <CardContent className="p-6">
+        <h3 className="text-xl font-bold text-white mb-4 text-center">دسته‌بندی‌ها</h3>
+        <ScrollArea className="h-80">
+          <div className="space-y-3">
+            {categories.map((category) => {
+              const IconComponent = category.icon;
+              return (
+                <div
+                  key={category.id}
+                  className={`${category.color} rounded-lg p-4 hover:scale-105 transition-all duration-300 cursor-pointer shadow-lg`}
+                >
+                  <div className="flex items-center gap-3">
+                    <IconComponent className="h-6 w-6 text-white" />
+                    <span className="text-white font-medium">{category.name}</span>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-foreground text-lg">{category.name}</h3>
-                  <p className="text-sm text-muted-foreground">{category.description}</p>
-                  <p className="text-xs text-primary font-medium">{category.productCount} {t("productsText")}</p>
-                </div>
-              </Link>
-            ))}
+              );
+            })}
           </div>
-        </div>
-      </div>
-    </section>
+        </ScrollArea>
+      </CardContent>
+    </Card>
   );
 }
