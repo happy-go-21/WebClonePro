@@ -17,16 +17,16 @@ export default function ProvinceCircles() {
     <Card className="glassmorphism border-white/20 w-full">
       <CardContent className="p-6">
         <h3 className="text-xl font-bold text-black mb-4 text-center">ولایات</h3>
-        <ScrollArea className="h-96 w-full">
-          <div className="flex flex-col items-center space-y-4 pr-4">
+        <ScrollArea className="h-28 w-full">
+          <div className="flex flex-row items-center space-x-4 pb-2">
             {provinces.map((province, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-orange-400 to-orange-600 w-20 h-20 rounded-full flex items-center justify-center hover:scale-110 hover:from-orange-500 hover:to-orange-700 transition-all duration-300 cursor-pointer shadow-lg border-2 border-white/30"
+                className="bg-gradient-to-br from-orange-400 to-orange-600 w-16 h-16 rounded-full flex items-center justify-center hover:scale-110 hover:from-orange-500 hover:to-orange-700 transition-all duration-300 cursor-pointer shadow-lg border-2 border-white/30 flex-shrink-0"
               >
                 <div className="text-center">
-                  <MapPin className="h-4 w-4 text-white mx-auto mb-1" />
-                  <span className="text-xs text-white font-medium leading-tight">{province}</span>
+                  <MapPin className="h-3 w-3 text-white mx-auto mb-1" />
+                  <span className="text-xs text-white font-medium leading-none text-center">{province}</span>
                 </div>
               </div>
             ))}

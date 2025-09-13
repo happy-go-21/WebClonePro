@@ -16,17 +16,17 @@ export default function CategoryCircles() {
     <Card className="glassmorphism border-white/20 w-full">
       <CardContent className="p-6">
         <h3 className="text-xl font-bold text-black mb-4 text-center">دسته‌بندی‌ها</h3>
-        <ScrollArea className="h-96 w-full">
-          <div className="flex flex-col items-center space-y-4 pr-4">
+        <ScrollArea className="h-32 w-full">
+          <div className="flex flex-row items-center space-x-4 pb-2">
             {categories.map((category) => {
               const IconComponent = category.icon;
               return (
                 <div
                   key={category.id}
-                  className={`${category.color} w-24 h-24 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer shadow-lg`}
+                  className={`${category.color} w-20 h-20 rounded-full flex flex-col items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer shadow-lg flex-shrink-0`}
                 >
-                  <IconComponent className="h-8 w-8 text-white mb-1" />
-                  <span className="text-xs text-white font-medium text-center px-1">{category.name}</span>
+                  <IconComponent className="h-5 w-5 text-white mb-1" />
+                  <span className="text-xs text-white font-medium text-center px-1 leading-none">{category.name}</span>
                 </div>
               );
             })}
