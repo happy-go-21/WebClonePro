@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/useLanguage";
 import LanguageSwitcher from "./LanguageSwitcher";
+import AuthModal from "./AuthModal";
 import { apiRequest } from "@/lib/queryClient";
 import type { User } from "@shared/schema";
 
@@ -132,6 +133,11 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      <AuthModal 
+        mode={showAuthModal} 
+        onClose={() => setShowAuthModal(null)} 
+      />
     </header>
   );
 }
