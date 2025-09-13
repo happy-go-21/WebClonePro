@@ -1,287 +1,49 @@
-import { type Product, type InsertProduct, type Category, type InsertCategory, type Province, type InsertProvince, type User, type InsertUser, products, categories, provinces, users } from "@shared/schema";
+import { type User, type InsertUser, type Product, type InsertProduct, type Conversation, type InsertConversation, type Message, type InsertMessage, users, products, conversations, messages } from "@shared/schema";
 import { db } from "./db";
-import { eq, ilike, and, desc, or, count, sql } from "drizzle-orm";
+import { eq, desc, and, or } from "drizzle-orm";
 import session from "express-session";
-import connectPg from "connect-pg-simple";
+import connectPgSimple from "connect-pg-simple";
 
 export interface IStorage {
-  // Products
-  getProducts(): Promise<Product[]>;
-  getProductById(id: string): Promise<Product | undefined>;
-  getProductsByCategory(category: string): Promise<Product[]>;
-  getProductsByLocation(location: string): Promise<Product[]>;
-  searchProducts(query: string, category?: string, location?: string): Promise<Product[]>;
-  createProduct(product: InsertProduct): Promise<Product>;
-  updateProduct(id: string, product: Partial<Product>): Promise<Product | undefined>;
-  deleteProduct(id: string): Promise<boolean>;
+  // Session store for auth
+  sessionStore: any;
   
-  // Categories
-  getCategories(): Promise<Category[]>;
-  getCategoryById(id: string): Promise<Category | undefined>;
-  createCategory(category: InsertCategory): Promise<Category>;
-  
-  // Provinces
-  getProvinces(): Promise<Province[]>;
-  getProvinceById(id: string): Promise<Province | undefined>;
-  createProvince(province: InsertProvince): Promise<Province>;
-  
-  // Users
+  // User methods
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUser(id: string, user: Partial<User>): Promise<User | undefined>;
+  updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
   
-  // Session store for authentication
-  sessionStore: session.Store;
+  // Product methods
+  getProducts(filters?: { search?: string; category?: string; location?: string; limit?: number }): Promise<Product[]>;
+  getProduct(id: string): Promise<Product | undefined>;
+  createProduct(product: InsertProduct & { userId: string }): Promise<Product>;
+  updateProduct(id: string, updates: Partial<Product>): Promise<Product | undefined>;
+  getLatestProduct(): Promise<Product | null>;
+  
+  // Conversation methods
+  getConversations(userId: string): Promise<Conversation[]>;
+  getConversation(id: string): Promise<Conversation | undefined>;
+  createConversation(conversation: InsertConversation): Promise<Conversation>;
+  
+  // Message methods
+  getMessages(conversationId: string): Promise<Message[]>;
+  createMessage(message: InsertMessage): Promise<Message>;
+  markMessagesAsRead(conversationId: string, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
-  private initialized = false;
-  public sessionStore: session.Store;
+  sessionStore: any;
 
   constructor() {
-    const PostgresSessionStore = connectPg(session);
+    // Initialize session store using PostgreSQL
+    const PostgresSessionStore = connectPgSimple(session);
     this.sessionStore = new PostgresSessionStore({
       conString: process.env.DATABASE_URL,
       createTableIfMissing: true,
     });
   }
 
-  private async initializeData() {
-    if (this.initialized) return;
-    
-    // Check if categories exist
-    const existingCategories = await db.select().from(categories).limit(1);
-    if (existingCategories.length === 0) {
-      // Initialize categories
-      const defaultCategories: InsertCategory[] = [
-        { name: "املاک", icon: "🏠", count: 0 },
-        { name: "خودرو", icon: "🚗", count: 0 },
-        { name: "الکترونیکی", icon: "📱", count: 0 },
-        { name: "لباس مردانه", icon: "👔", count: 0 },
-        { name: "لباس زنانه", icon: "👗", count: 0 },
-        { name: "لباس کودکان", icon: "👶", count: 0 },
-        { name: "طلا و جواهرات", icon: "💎", count: 0 },
-        { name: "لوازم خانگی", icon: "🛋️", count: 0 },
-        { name: "کتاب و آموزش", icon: "📚", count: 0 },
-        { name: "لوازم کودک", icon: "🧸", count: 0 },
-        { name: "استخدام", icon: "💼", count: 0 },
-        { name: "خدمات", icon: "🛠️", count: 0 },
-        { name: "میوه‌جات", icon: "🍎", count: 0 },
-        { name: "مواد غذایی", icon: "🥘", count: 0 },
-        { name: "ورزشی", icon: "⚽", count: 0 },
-        { name: "سرگرمی", icon: "🎮", count: 0 },
-      ];
-
-      await db.insert(categories).values(defaultCategories);
-    }
-
-    // Check if provinces exist
-    const existingProvinces = await db.select().from(provinces).limit(1);
-    if (existingProvinces.length === 0) {
-      // Initialize provinces
-      const defaultProvinces: InsertProvince[] = [
-        { name: "کابل", icon: "🏛️", population: "4.6M" },
-        { name: "هرات", icon: "🕌", population: "1.9M" },
-        { name: "بلخ", icon: "🏺", population: "1.5M" },
-        { name: "قندهار", icon: "🏜️", population: "614K" },
-        { name: "ننگرهار", icon: "🏔️", population: "1.7M" },
-        { name: "غزنی", icon: "🏰", population: "1.3M" },
-        { name: "بامیان", icon: "⛰️", population: "455K" },
-        { name: "فراه", icon: "🌾", population: "385K" },
-        { name: "کندز", icon: "🌿", population: "1.1M" },
-        { name: "بدخشان", icon: "🏔️", population: "970K" },
-      ];
-
-      await db.insert(provinces).values(defaultProvinces);
-    }
-
-    this.initialized = true;
-  }
-
-  // Products
-  async getProducts(): Promise<Product[]> {
-    await this.initializeData();
-    return await db.select().from(products)
-      .where(eq(products.isActive, true))
-      .orderBy(desc(products.createdAt));
-  }
-
-  async getProductById(id: string): Promise<Product | undefined> {
-    const [product] = await db.select().from(products).where(eq(products.id, id));
-    return product || undefined;
-  }
-
-  async getProductsByCategory(category: string): Promise<Product[]> {
-    return await db.select().from(products)
-      .where(and(eq(products.category, category), eq(products.isActive, true)))
-      .orderBy(desc(products.createdAt));
-  }
-
-  async getProductsByLocation(location: string): Promise<Product[]> {
-    return await db.select().from(products)
-      .where(and(eq(products.location, location), eq(products.isActive, true)))
-      .orderBy(desc(products.createdAt));
-  }
-
-  async searchProducts(query: string, category?: string, location?: string): Promise<Product[]> {
-    let conditions = [eq(products.isActive, true)];
-    
-    if (query) {
-      const textCondition = or(
-        ilike(products.title, `%${query}%`),
-        ilike(products.description, `%${query}%`)
-      );
-      if (textCondition) {
-        conditions.push(textCondition);
-      }
-    }
-    
-    if (category) {
-      conditions.push(eq(products.category, category));
-    }
-    
-    if (location) {
-      conditions.push(eq(products.location, location));
-    }
-
-    return await db.select().from(products)
-      .where(and(...conditions))
-      .orderBy(desc(products.createdAt));
-  }
-
-  async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    return await db.transaction(async (tx) => {
-      const [product] = await tx.insert(products).values(insertProduct).returning();
-      
-      // Update category count using atomic COUNT(*) subquery
-      await tx.update(categories)
-        .set({ 
-          count: sql`(
-            SELECT COUNT(*) 
-            FROM ${products} 
-            WHERE ${products.category} = ${product.category} 
-            AND ${products.isActive} = true
-          )`
-        })
-        .where(eq(categories.name, product.category));
-      
-      return product;
-    });
-  }
-
-  async updateProduct(id: string, updates: Partial<Product>): Promise<Product | undefined> {
-    return await db.transaction(async (tx) => {
-      // First get the current product to detect category/isActive changes
-      const [currentProduct] = await tx.select().from(products).where(eq(products.id, id));
-      if (!currentProduct) return undefined;
-      
-      // Update the product
-      const [updatedProduct] = await tx.update(products)
-        .set(updates)
-        .where(eq(products.id, id))
-        .returning();
-      
-      if (!updatedProduct) return undefined;
-      
-      // Check if category or isActive changed
-      const categoryChanged = updates.category && updates.category !== currentProduct.category;
-      const isActiveChanged = updates.isActive !== undefined && updates.isActive !== currentProduct.isActive;
-      
-      if (categoryChanged || isActiveChanged) {
-        // Update old category count if category changed
-        if (categoryChanged) {
-          await tx.update(categories)
-            .set({ 
-              count: sql`(
-                SELECT COUNT(*) 
-                FROM ${products} 
-                WHERE ${products.category} = ${currentProduct.category} 
-                AND ${products.isActive} = true
-              )`
-            })
-            .where(eq(categories.name, currentProduct.category));
-        }
-        
-        // Update new/current category count
-        const targetCategory = updates.category || currentProduct.category;
-        await tx.update(categories)
-          .set({ 
-            count: sql`(
-              SELECT COUNT(*) 
-              FROM ${products} 
-              WHERE ${products.category} = ${targetCategory} 
-              AND ${products.isActive} = true
-            )`
-          })
-          .where(eq(categories.name, targetCategory));
-      }
-      
-      return updatedProduct;
-    });
-  }
-
-  async deleteProduct(id: string): Promise<boolean> {
-    return await db.transaction(async (tx) => {
-      // First get the product to know which category to update
-      const [productToDelete] = await tx.select().from(products).where(eq(products.id, id));
-      if (!productToDelete) return false;
-      
-      // Delete the product
-      const result = await tx.delete(products).where(eq(products.id, id));
-      const deleted = (result.rowCount || 0) > 0;
-      
-      if (deleted) {
-        // Update category count using atomic COUNT(*) subquery
-        await tx.update(categories)
-          .set({ 
-            count: sql`(
-              SELECT COUNT(*) 
-              FROM ${products} 
-              WHERE ${products.category} = ${productToDelete.category} 
-              AND ${products.isActive} = true
-            )`
-          })
-          .where(eq(categories.name, productToDelete.category));
-      }
-      
-      return deleted;
-    });
-  }
-
-  // Categories
-  async getCategories(): Promise<Category[]> {
-    await this.initializeData();
-    return await db.select().from(categories);
-  }
-
-  async getCategoryById(id: string): Promise<Category | undefined> {
-    const [category] = await db.select().from(categories).where(eq(categories.id, id));
-    return category || undefined;
-  }
-
-  async createCategory(insertCategory: InsertCategory): Promise<Category> {
-    const [category] = await db.insert(categories).values(insertCategory).returning();
-    return category;
-  }
-
-  // Provinces
-  async getProvinces(): Promise<Province[]> {
-    await this.initializeData();
-    return await db.select().from(provinces);
-  }
-
-  async getProvinceById(id: string): Promise<Province | undefined> {
-    const [province] = await db.select().from(provinces).where(eq(provinces.id, id));
-    return province || undefined;
-  }
-
-  async createProvince(insertProvince: InsertProvince): Promise<Province> {
-    const [province] = await db.insert(provinces).values(insertProvince).returning();
-    return province;
-  }
-
-  // Users
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
@@ -293,16 +55,121 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
-    const [user] = await db.update(users)
+    const [user] = await db
+      .update(users)
       .set(updates)
       .where(eq(users.id, id))
       .returning();
     return user || undefined;
+  }
+
+  async getProducts(filters?: { search?: string; category?: string; location?: string; limit?: number }): Promise<Product[]> {
+    let conditions = [eq(products.isActive, true)];
+    
+    if (filters?.category) {
+      conditions.push(eq(products.category, filters.category));
+    }
+    
+    if (filters?.location) {
+      conditions.push(eq(products.location, filters.location));
+    }
+    
+    let query = db.select().from(products).where(and(...conditions)).orderBy(desc(products.createdAt));
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    
+    return await query;
+  }
+
+  async getProduct(id: string): Promise<Product | undefined> {
+    const [product] = await db.select().from(products).where(eq(products.id, id));
+    return product || undefined;
+  }
+
+  async createProduct(product: InsertProduct & { userId: string }): Promise<Product> {
+    const [newProduct] = await db
+      .insert(products)
+      .values([product])
+      .returning();
+    return newProduct;
+  }
+
+  async updateProduct(id: string, updates: Partial<Product>): Promise<Product | undefined> {
+    const [product] = await db
+      .update(products)
+      .set(updates)
+      .where(eq(products.id, id))
+      .returning();
+    return product || undefined;
+  }
+
+  async getLatestProduct(): Promise<Product | null> {
+    const [product] = await db
+      .select()
+      .from(products)
+      .where(eq(products.isActive, true))
+      .orderBy(desc(products.createdAt))
+      .limit(1);
+    return product || null;
+  }
+
+  async getConversations(userId: string): Promise<Conversation[]> {
+    return await db
+      .select()
+      .from(conversations)
+      .where(or(eq(conversations.buyerId, userId), eq(conversations.sellerId, userId)))
+      .orderBy(desc(conversations.createdAt));
+  }
+
+  async getConversation(id: string): Promise<Conversation | undefined> {
+    const [conversation] = await db.select().from(conversations).where(eq(conversations.id, id));
+    return conversation || undefined;
+  }
+
+  async createConversation(conversation: InsertConversation): Promise<Conversation> {
+    const [newConversation] = await db
+      .insert(conversations)
+      .values([conversation])
+      .returning();
+    return newConversation;
+  }
+
+  async getMessages(conversationId: string): Promise<Message[]> {
+    return await db
+      .select()
+      .from(messages)
+      .where(eq(messages.conversationId, conversationId))
+      .orderBy(messages.createdAt);
+  }
+
+  async createMessage(message: InsertMessage): Promise<Message> {
+    const [newMessage] = await db
+      .insert(messages)
+      .values([message])
+      .returning();
+    return newMessage;
+  }
+
+  async markMessagesAsRead(conversationId: string, userId: string): Promise<void> {
+    await db
+      .update(messages)
+      .set({ isRead: true })
+      .where(
+        and(
+          eq(messages.conversationId, conversationId),
+          eq(messages.senderId, userId)
+        )
+      );
   }
 }
 

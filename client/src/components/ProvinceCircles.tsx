@@ -1,58 +1,32 @@
-import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
-import type { Province } from "@shared/schema";
+import { Link } from "wouter";
+import { useLanguage } from "@/hooks/useLanguage";
+import { provinces } from "@/lib/sampleData";
 
 export default function ProvinceCircles() {
-  const [, setLocation] = useLocation();
-  
-  const { data: provinces, isLoading } = useQuery<Province[]>({
-    queryKey: ["/api/provinces"],
-  });
+  const { t } = useLanguage();
 
-  const handleProvinceClick = (provinceName: string) => {
-    setLocation(`/products?location=${encodeURIComponent(provinceName)}`);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="glassmorphism rounded-xl p-6 mb-8 shadow-2xl">
-        <h2 className="text-xl font-bold text-white mb-4 border-b border-white/30 pb-2">
-          انتخاب ولایت
-        </h2>
-        <div className="flex gap-6 overflow-x-auto p-4 scrollbar-hide">
-          {[...Array(6)].map((_, i) => (
-            <div 
-              key={i}
-              className="w-36 h-36 rounded-full glassmorphism animate-pulse flex-shrink-0"
-            />
+  return (
+    <section className="py-16 bg-muted/30">
+      <div className="container mx-auto px-4">
+        <h2 className="text-3xl font-bold text-center mb-12">{t("exploreByProvince")}</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {provinces.map((province) => (
+            <Link
+              key={province.id}
+              href={`/products?location=${encodeURIComponent(province.name)}`}
+              className="bg-card rounded-lg p-4 text-center hover:shadow-md transition-shadow cursor-pointer no-underline relative"
+              data-testid={`province-${province.id}`}
+            >
+              {/* Province Badge/Sticker */}
+              <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded-full shadow-md">
+                {province.productCount}
+              </div>
+              <h3 className="font-semibold text-foreground">{province.name}</h3>
+              <p className="text-sm text-muted-foreground">{province.productCount} {t("productsText")}</p>
+            </Link>
           ))}
         </div>
       </div>
-    );
-  }
-
-  return (
-    <div className="glassmorphism rounded-xl p-6 mb-8 shadow-2xl">
-      <h2 className="text-xl font-bold text-white mb-4 border-b border-white/30 pb-2">
-        انتخاب ولایت
-      </h2>
-      
-      <div className="flex gap-6 overflow-x-auto p-4 scrollbar-hide">
-        {provinces?.map((province) => (
-          <div 
-            key={province.id}
-            className="province-gradient province-morph shimmer w-36 h-36 rounded-full flex flex-col items-center justify-center text-white font-bold cursor-pointer shadow-2xl border-2 border-white/20 flex-shrink-0 relative overflow-hidden golden-border"
-            onClick={() => handleProvinceClick(province.name)}
-            data-testid={`circle-province-${province.id}`}
-          >
-            <div className="text-3xl mb-2">{province.icon}</div>
-            <span className="text-lg text-center">{province.name}</span>
-            {province.population && (
-              <span className="text-xs mt-1 opacity-80">{province.population}</span>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
+    </section>
   );
 }

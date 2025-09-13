@@ -12,6 +12,9 @@ import rateLimit from "express-rate-limit";
 declare global {
   namespace Express {
     interface User extends SelectUser {}
+    interface Session {
+      csrfToken?: string;
+    }
   }
 }
 
@@ -54,7 +57,7 @@ function csrfProtection(req: any, res: any, next: any) {
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // limit each IP to 5 requests per windowMs
-  message: { message: "تعداد تلاش‌های شما بیش از حد مجاز است. لطفاً بعداً تلاش کنید." },
+  message: { message: "Too many attempts, please try again later." },
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true, // don't count successful requests
@@ -142,7 +145,7 @@ export function setupAuth(app: Express) {
       // Check if username already exists
       const existingUser = await storage.getUserByUsername(validatedData.username);
       if (existingUser) {
-        return res.status(400).json({ message: "نام کاربری قبلاً ثبت شده است" });
+        return res.status(400).json({ message: "Username already exists" });
       }
 
       // Create user with hashed password
@@ -170,7 +173,7 @@ export function setupAuth(app: Express) {
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
-          message: "اطلاعات وارد شده نامعتبر است", 
+          message: "Invalid data", 
           errors: error.errors 
         });
       }
@@ -184,7 +187,7 @@ export function setupAuth(app: Express) {
       if (err) return next(err);
       
       if (!user) {
-        return res.status(401).json({ message: "نام کاربری یا رمز عبور اشتباه است" });
+        return res.status(401).json({ message: "Invalid username or password" });
       }
 
       req.login(user, (err) => {
@@ -214,7 +217,7 @@ export function setupAuth(app: Express) {
       req.session.destroy((destroyErr) => {
         if (destroyErr) return next(destroyErr);
         res.clearCookie('connect.sid'); // Clear session cookie
-        res.status(200).json({ message: "با موفقیت خارج شدید" });
+        res.status(200).json({ message: "Successfully logged out" });
       });
     });
   });
@@ -222,7 +225,7 @@ export function setupAuth(app: Express) {
   // Get current user endpoint
   app.get("/api/user", (req, res) => {
     if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "وارد نشده‌اید" });
+      return res.status(401).json({ message: "Not authenticated" });
     }
     
     // Don't send password in response
@@ -233,20 +236,20 @@ export function setupAuth(app: Express) {
   // Change password endpoint
   app.post("/api/change-password", async (req, res, next) => {
     if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "وارد نشده‌اید" });
+      return res.status(401).json({ message: "Not authenticated" });
     }
 
     try {
       const { currentPassword, newPassword } = req.body;
       
       if (!currentPassword || !newPassword) {
-        return res.status(400).json({ message: "رمز عبور فعلی و جدید ضروری است" });
+        return res.status(400).json({ message: "Current and new password required" });
       }
 
       // Verify current password
       const user = await storage.getUser(req.user!.id);
       if (!user || !(await comparePasswords(currentPassword, user.password))) {
-        return res.status(400).json({ message: "رمز عبور فعلی اشتباه است" });
+        return res.status(400).json({ message: "Current password is incorrect" });
       }
 
       // Update password
@@ -254,7 +257,7 @@ export function setupAuth(app: Express) {
         password: await hashPassword(newPassword),
       });
 
-      res.json({ message: "رمز عبور با موفقیت تغییر یافت" });
+      res.json({ message: "Password changed successfully" });
     } catch (error) {
       next(error);
     }
@@ -263,7 +266,7 @@ export function setupAuth(app: Express) {
   // Update user profile endpoint
   app.patch("/api/user", async (req, res, next) => {
     if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "وارد نشده‌اید" });
+      return res.status(401).json({ message: "Not authenticated" });
     }
 
     try {
@@ -277,13 +280,13 @@ export function setupAuth(app: Express) {
       }
 
       if (Object.keys(updates).length === 0) {
-        return res.status(400).json({ message: "هیچ فیلدی برای به‌روزرسانی ارسال نشده" });
+        return res.status(400).json({ message: "No fields to update" });
       }
 
       const updatedUser = await storage.updateUser(req.user!.id, updates);
       
       if (!updatedUser) {
-        return res.status(404).json({ message: "کاربر یافت نشد" });
+        return res.status(404).json({ message: "User not found" });
       }
 
       // Don't send password in response

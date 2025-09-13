@@ -6,12 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/useLanguage";
 import { apiRequest } from "@/lib/queryClient";
+import { categories, provinces } from "@/lib/sampleData";
 import type { InsertProduct } from "@shared/schema";
 
 export default function PostAd() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   
   const [formData, setFormData] = useState<InsertProduct>({
@@ -20,6 +23,7 @@ export default function PostAd() {
     price: "",
     category: "",
     location: "",
+    images: [],
     isActive: true,
   });
 
@@ -30,16 +34,16 @@ export default function PostAd() {
     },
     onSuccess: () => {
       toast({
-        title: "موفقیت",
-        description: "آگهی شما با موفقیت ثبت شد!",
+        title: t("success"),
+        description: t("adPostedSuccessfully"),
       });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       setLocation("/");
     },
     onError: () => {
       toast({
-        title: "خطا",
-        description: "در ثبت آگهی خطایی رخ داد. لطفاً مجدداً تلاش کنید.",
+        title: t("error"),
+        description: t("failedToPostAd"),
         variant: "destructive",
       });
     },
@@ -50,8 +54,8 @@ export default function PostAd() {
     
     if (!formData.title || !formData.description || !formData.price || !formData.category || !formData.location) {
       toast({
-        title: "خطا",
-        description: "لطفاً همه فیلدهای الزامی را پر کنید.",
+        title: t("error"),
+        description: t("fillAllRequiredFields"),
         variant: "destructive",
       });
       return;
@@ -60,62 +64,47 @@ export default function PostAd() {
     createProductMutation.mutate(formData);
   };
 
-  const updateField = (field: keyof InsertProduct, value: string) => {
+  const updateField = (field: keyof InsertProduct, value: string | string[] | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="glassmorphism rounded-xl p-6 mb-8 shadow-2xl">
-        <h1 className="text-3xl font-bold text-center text-white mb-6 text-shadow">
-          📝 ثبت آگهی جدید
+      <div className="bg-card rounded-xl p-6 shadow-md border border-border">
+        <h1 className="text-3xl font-bold text-center text-foreground mb-6">
+          📝 {t("postNewAd")}
         </h1>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-white text-sm font-bold mb-2">
-                عنوان آگهی *
+              <label className="block text-foreground text-sm font-bold mb-2">
+                {t("adTitle")} *
               </label>
               <Input
                 type="text"
-                placeholder="عنوان آگهی"
+                placeholder={t("adTitle")}
                 value={formData.title}
                 onChange={(e) => updateField("title", e.target.value)}
-                className="glassmorphism text-white placeholder-white/70 border-white/30 focus:border-white/50"
                 required
                 data-testid="input-title"
               />
             </div>
             
             <div>
-              <label className="block text-white text-sm font-bold mb-2">
-                دسته‌بندی *
+              <label className="block text-foreground text-sm font-bold mb-2">
+                {t("category")} *
               </label>
               <Select value={formData.category} onValueChange={(value) => updateField("category", value)}>
-                <SelectTrigger 
-                  className="glassmorphism text-white border-white/30 focus:border-white/50"
-                  data-testid="select-category"
-                >
-                  <SelectValue placeholder="انتخاب دسته‌بندی" />
+                <SelectTrigger data-testid="select-category">
+                  <SelectValue placeholder={t("selectCategory")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="املاک">املاک</SelectItem>
-                  <SelectItem value="خودرو">خودرو</SelectItem>
-                  <SelectItem value="الکترونیکی">الکترونیکی</SelectItem>
-                  <SelectItem value="لوازم خانگی">لوازم خانگی</SelectItem>
-                  <SelectItem value="لباس مردانه">لباس مردانه</SelectItem>
-                  <SelectItem value="لباس زنانه">لباس زنانه</SelectItem>
-                  <SelectItem value="لباس کودکان">لباس کودکان</SelectItem>
-                  <SelectItem value="طلا و جواهرات">طلا و جواهرات</SelectItem>
-                  <SelectItem value="کتاب و آموزش">کتاب و آموزش</SelectItem>
-                  <SelectItem value="لوازم کودک">لوازم کودک</SelectItem>
-                  <SelectItem value="استخدام">استخدام</SelectItem>
-                  <SelectItem value="خدمات">خدمات</SelectItem>
-                  <SelectItem value="میوه‌جات">میوه‌جات</SelectItem>
-                  <SelectItem value="مواد غذایی">مواد غذایی</SelectItem>
-                  <SelectItem value="ورزشی">ورزشی</SelectItem>
-                  <SelectItem value="سرگرمی">سرگرمی</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.name}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -123,57 +112,48 @@ export default function PostAd() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-white text-sm font-bold mb-2">
-                قیمت *
+              <label className="block text-foreground text-sm font-bold mb-2">
+                {t("price")} *
               </label>
               <Input
                 type="text"
-                placeholder="قیمت (افغانی/دلار)"
+                placeholder={t("priceInAFN")}
                 value={formData.price}
                 onChange={(e) => updateField("price", e.target.value)}
-                className="glassmorphism text-white placeholder-white/70 border-white/30 focus:border-white/50"
                 required
                 data-testid="input-price"
               />
             </div>
             
             <div>
-              <label className="block text-white text-sm font-bold mb-2">
-                موقعیت *
+              <label className="block text-foreground text-sm font-bold mb-2">
+                {t("location")} *
               </label>
               <Select value={formData.location} onValueChange={(value) => updateField("location", value)}>
-                <SelectTrigger 
-                  className="glassmorphism text-white border-white/30 focus:border-white/50"
-                  data-testid="select-location"
-                >
-                  <SelectValue placeholder="انتخاب موقعیت" />
+                <SelectTrigger data-testid="select-location">
+                  <SelectValue placeholder={t("selectLocation")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="کابل">کابل</SelectItem>
-                  <SelectItem value="هرات">هرات</SelectItem>
-                  <SelectItem value="بلخ">بلخ</SelectItem>
-                  <SelectItem value="قندهار">قندهار</SelectItem>
-                  <SelectItem value="ننگرهار">ننگرهار</SelectItem>
-                  <SelectItem value="غزنی">غزنی</SelectItem>
-                  <SelectItem value="بامیان">بامیان</SelectItem>
-                  <SelectItem value="فراه">فراه</SelectItem>
-                  <SelectItem value="کندز">کندز</SelectItem>
-                  <SelectItem value="بدخشان">بدخشان</SelectItem>
+                  {provinces.map((province) => (
+                    <SelectItem key={province.id} value={province.name}>
+                      {province.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
           </div>
           
           <div>
-            <label className="block text-white text-sm font-bold mb-2">
-              توضیحات *
+            <label className="block text-foreground text-sm font-bold mb-2">
+              {t("description")} *
             </label>
             <Textarea
-              placeholder="توضیحات آگهی..."
+              placeholder={t("adDescription")}
               rows={4}
               value={formData.description}
               onChange={(e) => updateField("description", e.target.value)}
-              className="glassmorphism text-white placeholder-white/70 border-white/30 focus:border-white/50 resize-none"
+              className="resize-none"
               required
               data-testid="textarea-description"
             />
@@ -184,19 +164,23 @@ export default function PostAd() {
               type="button"
               variant="outline"
               onClick={() => setLocation("/")}
-              className="glassmorphism text-white border-white/30 hover:bg-white/20"
               data-testid="button-cancel"
             >
-              انصراف
+              {t("cancel")}
             </Button>
             
             <Button
               type="submit"
               disabled={createProductMutation.isPending}
-              className="bg-white text-primary hover:bg-gray-100 golden-border px-8"
+              className="px-8"
               data-testid="button-submit"
             >
-              {createProductMutation.isPending ? "در حال ثبت..." : "📤 ثبت آگهی"}
+              {createProductMutation.isPending ? (
+                <div className="loading-spinner mr-2"></div>
+              ) : (
+                <i className="fas fa-upload mr-2"></i>
+              )}
+              {createProductMutation.isPending ? t("posting") : t("postAd")}
             </Button>
           </div>
         </form>
