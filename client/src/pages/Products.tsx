@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ProductGrid from "@/components/ProductGrid";
 import { useLanguage } from "@/hooks/useLanguage";
-import { categories, provinces } from "@/lib/sampleData";
+import { useQuery } from "@tanstack/react-query";
+import type { Category, Province } from "@shared/schema";
 
 export default function Products() {
   const [location] = useLocation();
@@ -19,6 +20,15 @@ export default function Products() {
   const [priceMax, setPriceMax] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [, setCurrentLocation] = useLocation();
+
+  // Fetch categories and provinces from API
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ['/api/categories'],
+  });
+
+  const { data: provinces = [], isLoading: provincesLoading } = useQuery<Province[]>({
+    queryKey: ['/api/provinces'],
+  });
 
   useEffect(() => {
     const url = new URL(window.location.href);

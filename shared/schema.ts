@@ -12,6 +12,20 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const categories = pgTable("categories", {
+  id: varchar("id").primaryKey(),
+  name: text("name").notNull(),
+  icon: text("icon").notNull(),
+  description: text("description"),
+  productCount: integer("product_count").default(0),
+});
+
+export const provinces = pgTable("provinces", {
+  id: varchar("id").primaryKey(),
+  name: text("name").notNull(),
+  productCount: integer("product_count").default(0),
+});
+
 export const products = pgTable("products", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
@@ -91,9 +105,17 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
   isRead: true,
 });
 
+export const insertCategorySchema = createInsertSchema(categories);
+
+export const insertProvinceSchema = createInsertSchema(provinces);
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type Category = typeof categories.$inferSelect;
+export type InsertCategory = z.infer<typeof insertCategorySchema>;
+export type Province = typeof provinces.$inferSelect;
+export type InsertProvince = z.infer<typeof insertProvinceSchema>;
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Conversation = typeof conversations.$inferSelect;

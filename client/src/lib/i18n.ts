@@ -9,7 +9,7 @@ export const translations = {
     products: "Products",
     categories: "Categories",
     dashboard: "Dashboard",
-    postAd: "Post Ad",
+    postAdNav: "Post Ad",
     back: "Back",
     
     // Authentication
@@ -145,7 +145,7 @@ export const translations = {
     products: "محصولات",
     categories: "دسته‌بندی‌ها",
     dashboard: "داشبورد",
-    postAd: "ثبت آگهی",
+    postAdNav: "ثبت آگهی",
     back: "بازگشت",
     
     // Authentication
@@ -281,7 +281,7 @@ export const translations = {
     products: "محصولات",
     categories: "برخې",
     dashboard: "ډشبورډ",
-    postAd: "اعلان ثبتول",
+    postAdNav: "اعلان ثبتول",
     back: "بیرته",
     
     // Authentication

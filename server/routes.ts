@@ -68,6 +68,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Category routes
+  app.get("/api/categories", async (req, res) => {
+    try {
+      const categories = await storage.getCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
+  // Province routes
+  app.get("/api/provinces", async (req, res) => {
+    try {
+      const provinces = await storage.getProvinces();
+      res.json(provinces);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch provinces" });
+    }
+  });
+
   // Conversation routes
   app.get("/api/conversations", async (req, res) => {
     if (!req.isAuthenticated()) {

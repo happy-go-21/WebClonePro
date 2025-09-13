@@ -1,6 +1,6 @@
-import { type User, type InsertUser, type Product, type InsertProduct, type Conversation, type InsertConversation, type Message, type InsertMessage, users, products, conversations, messages } from "@shared/schema";
+import { type User, type InsertUser, type Category, type Province, type Product, type InsertProduct, type Conversation, type InsertConversation, type Message, type InsertMessage, users, categories, provinces, products, conversations, messages } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, or } from "drizzle-orm";
+import { eq, desc, and, or, ilike, count, sql } from "drizzle-orm";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 
@@ -13,6 +13,14 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
+  
+  // Category methods
+  getCategories(): Promise<Category[]>;
+  getCategory(id: string): Promise<Category | undefined>;
+  
+  // Province methods
+  getProvinces(): Promise<Province[]>;
+  getProvince(id: string): Promise<Province | undefined>;
   
   // Product methods
   getProducts(filters?: { search?: string; category?: string; location?: string; limit?: number }): Promise<Product[]>;
@@ -30,6 +38,9 @@ export interface IStorage {
   getMessages(conversationId: string): Promise<Message[]>;
   createMessage(message: InsertMessage): Promise<Message>;
   markMessagesAsRead(conversationId: string, userId: string): Promise<void>;
+  
+  // Product count management
+  updateProductCounts(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -74,6 +85,17 @@ export class DatabaseStorage implements IStorage {
   async getProducts(filters?: { search?: string; category?: string; location?: string; limit?: number }): Promise<Product[]> {
     let conditions = [eq(products.isActive, true)];
     
+    if (filters?.search) {
+      // Search in both title and description with case-insensitive matching
+      const searchTerm = `%${filters.search}%`;
+      conditions.push(
+        or(
+          ilike(products.title, searchTerm),
+          ilike(products.description, searchTerm)
+        )
+      );
+    }
+    
     if (filters?.category) {
       conditions.push(eq(products.category, filters.category));
     }
@@ -101,6 +123,10 @@ export class DatabaseStorage implements IStorage {
       .insert(products)
       .values([product])
       .returning();
+    
+    // Update product counts after creating a new product
+    await this.updateProductCounts();
+    
     return newProduct;
   }
 
@@ -170,6 +196,64 @@ export class DatabaseStorage implements IStorage {
           eq(messages.senderId, userId)
         )
       );
+  }
+
+  async getCategories(): Promise<Category[]> {
+    return await db.select().from(categories).orderBy(categories.name);
+  }
+
+  async getCategory(id: string): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category || undefined;
+  }
+
+  async getProvinces(): Promise<Province[]> {
+    return await db.select().from(provinces).orderBy(provinces.name);
+  }
+
+  async getProvince(id: string): Promise<Province | undefined> {
+    const [province] = await db.select().from(provinces).where(eq(provinces.id, id));
+    return province || undefined;
+  }
+
+  async updateProductCounts(): Promise<void> {
+    // Update category product counts
+    const categoryCountsQuery = db
+      .select({
+        category: products.category,
+        count: count(products.id).as('count')
+      })
+      .from(products)
+      .where(eq(products.isActive, true))
+      .groupBy(products.category);
+    
+    const categoryCounts = await categoryCountsQuery;
+    
+    for (const categoryCount of categoryCounts) {
+      await db
+        .update(categories)
+        .set({ productCount: Number(categoryCount.count) })
+        .where(eq(categories.name, categoryCount.category));
+    }
+
+    // Update province product counts
+    const provinceCountsQuery = db
+      .select({
+        location: products.location,
+        count: count(products.id).as('count')
+      })
+      .from(products)
+      .where(eq(products.isActive, true))
+      .groupBy(products.location);
+    
+    const provinceCounts = await provinceCountsQuery;
+    
+    for (const provinceCount of provinceCounts) {
+      await db
+        .update(provinces)
+        .set({ productCount: Number(provinceCount.count) })
+        .where(eq(provinces.name, provinceCount.location));
+    }
   }
 }
 

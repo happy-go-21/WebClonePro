@@ -1,9 +1,33 @@
 import { Link } from "wouter";
 import { useLanguage } from "@/hooks/useLanguage";
-import { provinces } from "@/lib/sampleData";
+import { useQuery } from "@tanstack/react-query";
+import type { Province } from "@shared/schema";
 
 export default function ProvinceCircles() {
   const { t } = useLanguage();
+
+  const { data: provinces = [], isLoading } = useQuery<Province[]>({
+    queryKey: ['/api/provinces'],
+  });
+
+  if (isLoading) {
+    return (
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">{t("exploreByProvince")}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {[...Array(12)].map((_, i) => (
+              <div key={i} className="bg-card rounded-lg p-4 text-center animate-pulse relative">
+                <div className="absolute -top-2 -right-2 w-6 h-6 bg-muted rounded-full"></div>
+                <div className="h-4 bg-muted rounded mb-2"></div>
+                <div className="h-3 bg-muted rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16 bg-muted/30">
