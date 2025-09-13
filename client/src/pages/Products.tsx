@@ -33,7 +33,7 @@ export default function Products() {
   useEffect(() => {
     const url = new URL(window.location.href);
     const params = url.searchParams;
-    
+
     setSearchQuery(params.get('search') || '');
     setCategory(params.get('category') || '');
     setLocationFilter(params.get('location') || '');
@@ -43,12 +43,12 @@ export default function Products() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const params = new URLSearchParams();
     if (searchQuery) params.set('search', searchQuery);
     if (selectedCategory && selectedCategory !== 'all') params.set('category', selectedCategory);
     if (selectedLocation && selectedLocation !== 'all') params.set('location', selectedLocation);
-    
+
     setCurrentLocation(`/products?${params.toString()}`);
   };
 
@@ -75,7 +75,7 @@ export default function Products() {
         <h2 className="text-xl font-bold text-foreground mb-4 border-b border-border pb-2">
           {t("search")}
         </h2>
-        
+
         <form onSubmit={handleSearch} className="space-y-4">
           <div className="flex flex-wrap gap-4">
             <Input
@@ -86,7 +86,7 @@ export default function Products() {
               onChange={(e) => setSearchQuery(e.target.value)}
               data-testid="input-search"
             />
-            
+
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
               <SelectTrigger className="min-w-40" data-testid="select-category">
                 <SelectValue placeholder={t("allCategories")} />
@@ -98,7 +98,7 @@ export default function Products() {
                 ))}
               </SelectContent>
             </Select>
-            
+
             <Select value={selectedLocation} onValueChange={setSelectedLocation}>
               <SelectTrigger className="min-w-32" data-testid="select-location">
                 <SelectValue placeholder={t("allProvinces")} />
@@ -110,7 +110,7 @@ export default function Products() {
                 ))}
               </SelectContent>
             </Select>
-            
+
             <Button type="submit" data-testid="button-search">
               <i className="fas fa-search mr-2"></i>
               {t("search")}
@@ -124,7 +124,7 @@ export default function Products() {
         <div className="lg:w-1/4">
           <div className="bg-card rounded-lg p-6 border border-border space-y-6">
             <h3 className="text-lg font-semibold text-foreground">{t("filters")}</h3>
-            
+
             {/* Price Range */}
             <div>
               <h4 className="font-medium mb-2 text-foreground">{t("priceRange")}</h4>
